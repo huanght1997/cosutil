@@ -1,5 +1,7 @@
 # cosutil
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c16589b2374f44e194cfc2a4060c8580)](https://app.codacy.com/manual/huanght1997/cosutil?utm_source=github.com&utm_medium=referral&utm_content=huanght1997/cosutil&utm_campaign=Badge_Grade_Dashboard)
+
 ## 介绍
 
 非官方腾讯云COS命令行工具，用Go语言编写，基于改进的腾讯云COS Go SDK构建。
