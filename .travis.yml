@@ -1,0 +1,12 @@
+language: go
+go:
+- 1.13.x
+deploy:
+  provider: releases
+  api_key:
+    secure: iL0pKeV1jrkWTTOIOJj3AgOePCAyURaixu043gFJx7uY8694eFvIN5HWiXGmOlV/Stz93VLn16FMfd3MwKTcT5Am41Lui34kMe5ra/EYwyF1/fGrBQ2id02L0Kw3OzUTInmpOzKzo83s2uOOWtmRsdbInzUvIElFACNtAmEb6d7DpHEPwzDFNbmOwDagocr/rkmLOXEhQO8KxEQO79sSG4MCEG+b4JZYTB64ocNugxLe6uCYp7sZpBFV2j9RbmSnagYrOyzmHovcwJWGd2+pn83GWNoDVA46XZLOS2b0oObiSCbOoTGide0or37ziU7BhrTyMgtuRWrwqBUNtp7MYNEvClQeqijGGfjj1BYtUD/4gq5cKzqk9Zt39xv9JxpD2AcHqnS1j17oDlaiAPZKlRG9UAAoKP4Ki8Vy3hJ7UQ77sIguIKz3Bq46vnjBbVL64PfRupXXZuWIL90RTNNl09+X2pEaAWtJ6+BfYNvjqUJWzx/i/g40xF2Piw8JwchJBhHsJeENg6HxIDjaNfwsSGCYIceueIE+GTIzlPkNvLHzeL85smn7ishzPnwyVIj0sVNndp7S2FPfXlvNiVqzJ3IxavhiODzMBzjep0lUASD9JB7rGgd5VNy/T2kWOGIfkuVnkjWYTGmUV7pq/5v/h4EAZJZHmQgw9A0gCNOKRls=
+  file_glob: true
+  file: release/*
+  on:
+    repo: huanght1997/cosutil
+  skip_cleanup: 'true'
