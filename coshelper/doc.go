@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/*
-	Package coshelper implements some frequently used functions and structs
-	in the other two packages, like self-defined error class Error,
-	logging module, confirmation function Confirm().
-*/
+// Package coshelper implements some frequently used functions and structs
+// in the other two packages, like self-defined error class Error,
+// logging module, confirmation function Confirm().
 package coshelper

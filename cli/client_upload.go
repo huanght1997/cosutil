@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cli
 
 import (
@@ -36,7 +37,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 	log "github.com/sirupsen/logrus"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 )
 
 type UploadOption struct {
@@ -64,7 +65,7 @@ var (
 
 // Upload a single file.
 func (client *Client) UploadFile(localPath string, cosPath string, headers *http.Header, options *UploadOption) int {
-	fileSize, err := GetFileSize(localPath)
+	fileSize, err := coshelper.GetFileSize(localPath)
 	if err != nil {
 		return 2
 	}
@@ -162,7 +163,7 @@ func (client *Client) UploadFolder(localPath string, cosPath string, headers *ht
 		if !options.Force {
 			question := fmt.Sprintf("WARN: you are deleting some files in the '%s' COS path, please make sure",
 				rawCosPath)
-			if !Confirm(question, "no") {
+			if !coshelper.Confirm(question, "no") {
 				return -3
 			}
 		}
@@ -185,7 +186,7 @@ func (client *Client) UploadFolder(localPath string, cosPath string, headers *ht
 // upload a single file, using PUT. If upload successfully, return 0; if skipped, return -2; if failed, return -1
 func (client *Client) singleUpload(localPath string, cosPath string, headers *http.Header, options *UploadOption) int {
 	localMd5 := ""
-	fileSize, err := GetFileSize(localPath)
+	fileSize, err := coshelper.GetFileSize(localPath)
 	if err != nil {
 		return 2
 	}
@@ -194,7 +195,7 @@ func (client *Client) singleUpload(localPath string, cosPath string, headers *ht
 		if fileSize > 20*1024*1024 {
 			log.Info(`MD5 is being calculated, please wait. If you do not need to calculate MD5, you can use --skipmd5 to skip`)
 		}
-		localMd5 = GetFileMd5(localPath)
+		localMd5 = coshelper.GetFileMd5(localPath)
 	}
 	if !client.localToRemoteSyncCheck(localPath, cosPath, localMd5, fileSize, options) {
 		return -2
@@ -292,7 +293,7 @@ func (client *Client) multipartUpload(localPath string, cosPath string, headers 
 	fileSize := f.Size()
 	if !options.SkipMd5 {
 		log.Info("MD5 is being calculated, please wait. If you do not need to calculate md5, you can use --skipmd5 to skip")
-		fileMd5 = GetFileMd5(localPath)
+		fileMd5 = coshelper.GetFileMd5(localPath)
 	}
 	if !client.localToRemoteSyncCheck(localPath, cosPath, fileMd5, fileSize, options) {
 		return -2
@@ -399,7 +400,7 @@ func (client *Client) localToRemoteSyncDelete(localPath string, cosPath string) 
 					remotePath := file.Key
 					localDeletePath := localPath + remotePath[len(cosPath):]
 					// if there is no local file, delete the file on COS
-					if !IsFile(localDeletePath) {
+					if !coshelper.IsFile(localDeletePath) {
 						deleteList = append(deleteList, remotePath)
 					}
 				}
@@ -422,7 +423,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 	// If we can find unfinished task, get the UploadID.
 	pathDigest = getPathDigest(localPath, cosPath)
 	md5List = make([]string, 0)
-	if !options.Force && IsFile(pathDigest) {
+	if !options.Force && coshelper.IsFile(pathDigest) {
 		content, err := ioutil.ReadFile(pathDigest)
 		if err == nil {
 			uploadId = string(content)
@@ -453,7 +454,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 		log.Warn(err.Error())
 		return -1
 	}
-	if !IsDir(tmpDir) {
+	if !coshelper.IsDir(tmpDir) {
 		err := os.MkdirAll(tmpDir, os.ModePerm)
 		if err != nil {
 			log.Debug("Open upload tmp file error.")
@@ -468,7 +469,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 
 func (client *Client) multiUploadParts(localPath string, cosPath string, options *UploadOption) int {
 	var offset int64 = 0
-	fileSize, err := GetFileSize(localPath)
+	fileSize, err := coshelper.GetFileSize(localPath)
 	if err != nil {
 		return -1
 	}
@@ -691,7 +692,7 @@ func getPathDigest(localPath string, cosPath string) string {
 	if err != nil {
 		panic(err)
 	}
-	fileSize, err := GetFileSize(localPath)
+	fileSize, err := coshelper.GetFileSize(localPath)
 	if err != nil {
 		panic(err)
 	}

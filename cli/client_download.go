@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cli
 
 import (
@@ -28,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/danwakefield/fnmatch"
 	"github.com/huanght1997/cos-go-sdk-v5"
@@ -151,7 +152,7 @@ func (client *Client) DownloadFolder(cosPath string, localPath string, options *
 	// --sync --delete to delete files not in COS but in local
 	if options.Sync && options.Delete {
 		if !options.Force {
-			if !Confirm(fmt.Sprintf("WARN: you are deleting the file in the '%s' local path, please make sure", localPath), "no") {
+			if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the '%s' local path, please make sure", localPath), "no") {
 				return -3
 			}
 		}
@@ -216,7 +217,7 @@ func (client *Client) singleDownload(cosPath string, localPath string, options *
 	}
 	dirPath := filepath.Dir(localPath)
 	// create directories for downloaded file
-	if !IsDir(dirPath) {
+	if !coshelper.IsDir(dirPath) {
 		err := os.MkdirAll(dirPath, 0755)
 		if err != nil {
 			log.Warnf("Cannot create directory '%s'", dirPath)
@@ -280,7 +281,7 @@ func (client *Client) multipartDownload(cosPath string, localPath string, fileSi
 	log.Infof("Downloading %s", localPath)
 
 	dirPath := filepath.Dir(localPath)
-	if !IsDir(dirPath) {
+	if !coshelper.IsDir(dirPath) {
 		err := os.MkdirAll(dirPath, 0755)
 		if err != nil {
 			log.Warnf("Cannot create directory '%s'", dirPath)
@@ -477,7 +478,7 @@ func (client *Client) remoteToLocalSyncCheck(cosPath string, localPath string, o
 		return -2
 	}
 	if !options.Force {
-		if IsFile(localPath) {
+		if coshelper.IsFile(localPath) {
 			if options.Sync {
 				resp, err := client.Client.Object.Head(context.Background(), cosPath, nil)
 				if err != nil {
@@ -489,9 +490,9 @@ func (client *Client) remoteToLocalSyncCheck(cosPath string, localPath string, o
 					return -1
 				}
 				md5 := resp.Header.Get("x-cos-meta-md5")
-				localMd5 := GetFileMd5(localPath)
+				localMd5 := coshelper.GetFileMd5(localPath)
 				size, _ := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
-				localSize, _ := GetFileSize(localPath)
+				localSize, _ := coshelper.GetFileSize(localPath)
 				if (options.SkipMd5 || md5 == localMd5) && size == localSize {
 					log.Debugf("Skip cos://%s/%s => %s",
 						client.Config.Bucket, cosPath, localPath)

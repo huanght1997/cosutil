@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,7 @@ func listPart(_ *cobra.Command, args []string) error {
 	if client.ListMultipartObjects(cosPath) {
 		return nil
 	} else {
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "list multipart object failed",
 		}

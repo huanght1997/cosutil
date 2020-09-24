@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"os"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -43,7 +44,7 @@ try 'cosutil sub-command -h' to learn all command usages, like 'cosutil upload -
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		// Code: -3 user cancelled, -1 runtime failed(network or file permission), 1 user invalid input, 2 WTF
-		if e, ok := err.(Error); ok {
+		if e, ok := err.(coshelper.Error); ok {
 			os.Exit(e.Code)
 		}
 		os.Exit(-1)
@@ -62,7 +63,7 @@ func init() {
 		log.Fatal(err)
 	}
 	cobra.OnInitialize(func() {
-		InitLogger(cli.LogPath, cli.LogSize, cli.LogBackupCount, cli.DebugMode)
+		coshelper.InitLogger(cli.LogPath, cli.LogSize, cli.LogBackupCount, cli.DebugMode)
 	})
 	rootCmd.Flags().SortFlags = false
 	rootCmd.Flags().BoolVarP(&cli.DebugMode, "debug", "d", false,

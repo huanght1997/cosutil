@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -71,7 +72,7 @@ func restore(_ *cobra.Command, args []string) error {
 	case "bulk":
 		options.Tier = cli.Bulk
 	default:
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: "invalid -t option: must be one of them - Expedited, Standard, Bulk",
 		}
@@ -81,7 +82,7 @@ func restore(_ *cobra.Command, args []string) error {
 		if ret == 0 {
 			return nil
 		} else {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: "restore failed",
 			}
@@ -91,7 +92,7 @@ func restore(_ *cobra.Command, args []string) error {
 		if ret == 0 {
 			return nil
 		} else {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: "restore failed",
 			}

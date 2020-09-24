@@ -17,4 +17,4 @@
 
 ## 使用方法
 
-工具完全兼容腾讯云官方COS命令行工具coscmd，只要把名称coscmd改为cosutil即可。参见 https://cloud.tencent.com/document/product/436/10976
+工具完全兼容腾讯云官方COS命令行工具coscmd，只要把名称coscmd改为cosutil即可。参见<https://cloud.tencent.com/document/product/436/10976>

@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cli
 
 import (
@@ -20,7 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -108,7 +109,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 						filesInfo = append(filesInfo, FileDesc{
 							Path:      file.Key,
 							Type:      "",
-							Time:      ConvertTime(file.LastModified),
+							Time:      coshelper.ConvertTime(file.LastModified),
 							VersionId: file.VersionId,
 						})
 						if fileNum == options.Num {
@@ -123,7 +124,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 								Path:      file.Key,
 								Type:      "File",
 								Size:      file.Size,
-								Time:      ConvertTime(file.LastModified),
+								Time:      coshelper.ConvertTime(file.LastModified),
 								VersionId: file.VersionId,
 							})
 							if fileNum == options.Num {
@@ -151,7 +152,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 							Path:  file.Key,
 							Type:  "File",
 							Size:  file.Size,
-							Time:  ConvertTime(file.LastModified),
+							Time:  coshelper.ConvertTime(file.LastModified),
 							Class: file.StorageClass,
 						})
 						if fileNum == options.Num {
@@ -173,7 +174,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 
 	if options.Recursive {
 		log.Infof(" Files num: %d", fileNum)
-		log.Infof(" Files size: %s", Humanize(totalSize, options.Human))
+		log.Infof(" Files size: %s", coshelper.Humanize(totalSize, options.Human))
 	}
 	if !options.All && fileNum == options.Num {
 		log.Infof("Has listed the first %d, use '-a' option to list all please",
@@ -198,7 +199,7 @@ func printFilesInfo(filesInfo []FileDesc, options *ListOption) {
 			if row.Type == "File" {
 				t.AppendRow(table.Row{
 					row.Path,
-					Humanize(row.Size, options.Human),
+					coshelper.Humanize(row.Size, options.Human),
 					row.Time,
 					row.VersionId,
 				})
@@ -216,7 +217,7 @@ func printFilesInfo(filesInfo []FileDesc, options *ListOption) {
 			if row.Type == "File" {
 				t.AppendRow(table.Row{
 					row.Path,
-					Humanize(row.Size, options.Human),
+					coshelper.Humanize(row.Size, options.Human),
 					row.Class,
 					row.Time,
 				})

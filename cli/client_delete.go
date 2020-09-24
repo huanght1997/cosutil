@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cli
 
 import (
@@ -21,7 +22,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
@@ -35,7 +36,7 @@ type DeleteOption struct {
 
 func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 	if !options.Force {
-		if !Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
+		if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
 			return -3
 		}
 	}
@@ -165,7 +166,7 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 
 func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {
 	if !options.Force {
-		if !Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
+		if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
 			return -3
 		}
 	}

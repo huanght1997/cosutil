@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"cosutil/cli"
 	"strings"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,7 @@ func putBucketVersioning(_ *cobra.Command, args []string) error {
 	case "suspended":
 		versioning = false
 	default:
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: "invalid argument, must be one of them: Enabled or Suspended",
 		}
@@ -59,7 +60,7 @@ func putBucketVersioning(_ *cobra.Command, args []string) error {
 	if client.PutBucketVersioning(versioning) {
 		return nil
 	} else {
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "put bucket versioning fail",
 		}

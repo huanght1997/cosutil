@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
@@ -21,7 +22,7 @@ import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -83,9 +84,9 @@ func upload(_ *cobra.Command, args []string) error {
 		uploadCosPath = "/"
 	}
 
-	if !FileExists(uploadLocalPath) {
+	if !coshelper.FileExists(uploadLocalPath) {
 		log.Warnf("cannot stat '%s': No such file or directory", uploadLocalPath)
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: "no such file or directory",
 		}
@@ -94,7 +95,7 @@ func upload(_ *cobra.Command, args []string) error {
 	f, err := os.OpenFile(uploadLocalPath, os.O_RDONLY, 0755)
 	if err != nil {
 		log.Warnf("local path '%s' is not readable!", uploadLocalPath)
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: "local file not readable",
 		}
@@ -111,37 +112,37 @@ func upload(_ *cobra.Command, args []string) error {
 		Force:   uploadConfig.force,
 		Delete:  uploadConfig.delRemote,
 	}
-	headers := ConvertStringToHeader(uploadConfig.headers)
+	headers := coshelper.ConvertStringToHeader(uploadConfig.headers)
 	if uploadConfig.recursive {
 		var ret int
-		if IsFile(uploadLocalPath) {
+		if coshelper.IsFile(uploadLocalPath) {
 			ret = client.UploadFile(uploadLocalPath, uploadCosPath, headers, uploadOption)
-		} else if IsDir(uploadLocalPath) {
+		} else if coshelper.IsDir(uploadLocalPath) {
 			ret = client.UploadFolder(uploadLocalPath, uploadCosPath, headers, uploadOption)
 		}
 		if ret != 0 {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: fmt.Sprintf("upload failed, code: %d", ret),
 			}
 		}
 	} else {
-		if IsDir(uploadLocalPath) {
+		if coshelper.IsDir(uploadLocalPath) {
 			log.Warnf(`"%s" is a directory, use '-r' option to upload it please`, uploadLocalPath)
-			return Error{
+			return coshelper.Error{
 				Code:    1,
 				Message: "upload directory without -r option",
 			}
-		} else if !IsFile(uploadLocalPath) {
+		} else if !coshelper.IsFile(uploadLocalPath) {
 			log.Warnf("cannot stat '%s': No such file or directory", uploadLocalPath)
-			return Error{
+			return coshelper.Error{
 				Code:    1,
 				Message: "cannot access file",
 			}
 		}
 		ret := client.UploadFile(uploadLocalPath, uploadCosPath, headers, uploadOption)
 		if ret != 0 {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: "upload failed",
 			}

@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"cosutil/cli"
 	"strings"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,7 @@ func abort(_ *cobra.Command, args []string) error {
 	client := cli.NewClient(conf)
 	abortCosPath = strings.TrimLeft(abortCosPath, "/")
 	if client.AbortParts(abortCosPath) != 0 {
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "Failed to abort parts",
 		}

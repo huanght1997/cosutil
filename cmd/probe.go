@@ -1,3 +1,19 @@
+/*
+Copyright © 2020 Haitao Huang <hht970222@gmail.com>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package cmd
 
 import (
@@ -9,7 +25,7 @@ import (
 	"time"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	log "github.com/sirupsen/logrus"
@@ -50,7 +66,7 @@ func probe(*cobra.Command, []string) error {
 	if err != nil {
 		log.Warn("Create testfile failed")
 		log.Info("[failure]")
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "probe fail",
 		}
@@ -111,12 +127,12 @@ func probe(*cobra.Command, []string) error {
 			"Average", "Min", "Max",
 		})
 		t.Style().Options.DrawBorder = false
-		avgUploadBw := Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeUpload)*1e-9)), true) + "B/s"
-		avgDownloadBw := Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeDownload)*1e-9)), true) + "B/s"
-		minUploadBw := Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeUpload)*1e-9)), true) + "B/s"
-		minDownloadBw := Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeDownload)*1e-9)), true) + "B/s"
-		maxUploadBw := Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeUpload)*1e-9)), true) + "B/s"
-		maxDownloadBw := Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeDownload)*1e-9)), true) + "B/s"
+		avgUploadBw := coshelper.Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeUpload)*1e-9)), true) + "B/s"
+		avgDownloadBw := coshelper.Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeDownload)*1e-9)), true) + "B/s"
+		minUploadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeUpload)*1e-9)), true) + "B/s"
+		minDownloadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeDownload)*1e-9)), true) + "B/s"
+		maxUploadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeUpload)*1e-9)), true) + "B/s"
+		maxDownloadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeDownload)*1e-9)), true) + "B/s"
 		t.AppendRow(table.Row{
 			"Upload",
 			avgUploadBw, minUploadBw, maxUploadBw,
@@ -128,7 +144,7 @@ func probe(*cobra.Command, []string) error {
 		log.Info("\n" + t.Render())
 		return nil
 	}
-	return Error{
+	return coshelper.Error{
 		Code:    -1,
 		Message: "probe failed",
 	}

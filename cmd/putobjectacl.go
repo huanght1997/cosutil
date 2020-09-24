@@ -13,23 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 	"strings"
 )
 
-type PutObjectAclConfig struct {
+// PutObjectACLConfig defines ACL config for object.
+type PutObjectACLConfig struct {
 	grantRead, grantWrite, grantFullControl string
 }
 
 var (
-	putObjectAclConfig PutObjectAclConfig
-	putObjectAclCmd    = &cobra.Command{
+	putObjectACLConfig PutObjectACLConfig
+	putObjectACLCmd    = &cobra.Command{
 		DisableFlagsInUseLine: true,
 		Use: "putobjectacl [-h] [--grant-read GRANT_READ] [--grant-write GRANT_WRITE]" +
 			" [--grant-full-control GRANT_FULL_CONTROL] COS_PATH",
@@ -38,33 +40,32 @@ var (
 
 COS_PATH	COS Path as a/b.txt`,
 		Args: cobra.ExactArgs(1),
-		RunE: putObjectAcl,
+		RunE: putObjectACL,
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(putObjectAclCmd)
+	rootCmd.AddCommand(putObjectACLCmd)
 
-	putObjectAclCmd.Flags().SortFlags = false
-	putObjectAclCmd.Flags().StringVar(&putObjectAclConfig.grantRead, "grant-read", "",
+	putObjectACLCmd.Flags().SortFlags = false
+	putObjectACLCmd.Flags().StringVar(&putObjectACLConfig.grantRead, "grant-read", "",
 		"Set grant-read")
-	putObjectAclCmd.Flags().StringVar(&putObjectAclConfig.grantWrite, "grant-write", "",
+	putObjectACLCmd.Flags().StringVar(&putObjectACLConfig.grantWrite, "grant-write", "",
 		"Set grant-write")
-	putObjectAclCmd.Flags().StringVar(&putObjectAclConfig.grantFullControl, "grant-full-control", "",
+	putObjectACLCmd.Flags().StringVar(&putObjectACLConfig.grantFullControl, "grant-full-control", "",
 		"Set grant-full-control")
 }
 
-func putObjectAcl(_ *cobra.Command, args []string) error {
+func putObjectACL(_ *cobra.Command, args []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
 	cosPath := strings.TrimLeft(args[0], "/")
-	if client.PutObjectAcl(putObjectAclConfig.grantRead, putObjectAclConfig.grantWrite,
-		putObjectAclConfig.grantFullControl, cosPath) {
+	if client.PutObjectACL(putObjectACLConfig.grantRead, putObjectACLConfig.grantWrite,
+		putObjectACLConfig.grantFullControl, cosPath) {
 		return nil
-	} else {
-		return Error{
-			Code:    -1,
-			Message: "Put object acl fail",
-		}
+	}
+	return coshelper.Error{
+		Code:    -1,
+		Message: "Put object acl fail",
 	}
 }

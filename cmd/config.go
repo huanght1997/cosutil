@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
@@ -21,7 +22,7 @@ import (
 	"strconv"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -76,7 +77,7 @@ func config(cmd *cobra.Command, _ []string) error {
 	commonSection, err := cfg.NewSection("common")
 	if err != nil {
 		log.Error("Cannot create section `common`")
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "cannot create section 'common'",
 		}
@@ -89,7 +90,7 @@ func config(cmd *cobra.Command, _ []string) error {
 	newKey(commonSection, "bucket", configBucket)
 	if configRegion == "" && configEndpoint == "" {
 		err = fmt.Errorf("error: one of the arguments -r/--region -e/--endpoint is required")
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: err.Error(),
 		}
@@ -119,7 +120,7 @@ func config(cmd *cobra.Command, _ []string) error {
 	err = cfg.SaveTo(cli.ConfigPath)
 	if err != nil {
 		log.Errorf("Cannot write file to %s", cli.ConfigPath)
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: fmt.Sprintf("cannot write file to %s", cli.ConfigPath),
 		}

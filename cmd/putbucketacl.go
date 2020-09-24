@@ -13,56 +13,57 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
 
-type PutBucketAclConfig struct {
+// PutBucketACLConfig defines ACL for an object.
+type PutBucketACLConfig struct {
 	grantRead, grantWrite, grantFullControl string
 }
 
 var (
-	putBucketAclConfig PutBucketAclConfig
-	putBucketAclCmd    = &cobra.Command{
+	putBucketACLConfig PutBucketACLConfig
+	putBucketACLCmd    = &cobra.Command{
 		DisableFlagsInUseLine: true,
 		Use: "putbucketacl [-h] [--grant-read GRANT_READ] [--grant-write GRANT_WRITE]" +
 			" [--grant-full-control GRANT_FULL_CONTROL] COS_PATH",
 		Short: "Set bucket ACL",
 		Args:  cobra.ExactArgs(0),
-		RunE:  putBucketAcl,
+		RunE:  putBucketACL,
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(putBucketAclCmd)
+	rootCmd.AddCommand(putBucketACLCmd)
 
-	putBucketAclCmd.Flags().SortFlags = false
-	putBucketAclCmd.Flags().StringVar(&putBucketAclConfig.grantRead, "grant-read", "",
+	putBucketACLCmd.Flags().SortFlags = false
+	putBucketACLCmd.Flags().StringVar(&putBucketACLConfig.grantRead, "grant-read", "",
 		"Set grant-read")
-	putBucketAclCmd.Flags().StringVar(&putBucketAclConfig.grantWrite, "grant-write", "",
+	putBucketACLCmd.Flags().StringVar(&putBucketACLConfig.grantWrite, "grant-write", "",
 		"Set grant-write")
-	putBucketAclCmd.Flags().StringVar(&putBucketAclConfig.grantFullControl, "grant-full-control", "",
+	putBucketACLCmd.Flags().StringVar(&putBucketACLConfig.grantFullControl, "grant-full-control", "",
 		"Set grant-full-control")
 }
 
-func putBucketAcl(_ *cobra.Command, args []string) error {
+func putBucketACL(_ *cobra.Command, args []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
 	cosPath := strings.TrimLeft(args[0], "/")
-	if client.PutBucketAcl(putBucketAclConfig.grantRead, putBucketAclConfig.grantWrite,
-		putBucketAclConfig.grantFullControl, cosPath) {
+	if client.PutBucketACL(putBucketACLConfig.grantRead, putBucketACLConfig.grantWrite,
+		putBucketACLConfig.grantFullControl, cosPath) {
 		return nil
-	} else {
-		return Error{
-			Code:    -1,
-			Message: "Put bucket acl fail",
-		}
+	}
+	return coshelper.Error{
+		Code:    -1,
+		Message: "Put bucket acl fail",
 	}
 }

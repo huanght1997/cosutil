@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
@@ -23,7 +24,7 @@ import (
 	"time"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -58,7 +59,7 @@ func signUrl(cmd *cobra.Command, args []string) error {
 		http.MethodGet, cosPath, client.Config.SecretId, client.Config.SecretKey,
 		time.Duration(signUrlTimeout)*time.Second, nil)
 	if err != nil {
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: err.Error(),
 		}

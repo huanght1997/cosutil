@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -71,7 +72,7 @@ func copyCos(_ *cobra.Command, args []string) error {
 		cosPath = cosPath[1:]
 	}
 	if copyConfig.directive != "Copy" && copyConfig.directive != "Replaced" {
-		return Error{
+		return coshelper.Error{
 			Code:    1,
 			Message: "-d/--directive flags must be 'Copy' or 'Replaced'",
 		}
@@ -86,7 +87,7 @@ func copyCos(_ *cobra.Command, args []string) error {
 		Delete:    copyConfig.deleteTarget,
 		Move:      false,
 	}
-	headers := ConvertStringToHeader(copyConfig.headers)
+	headers := coshelper.ConvertStringToHeader(copyConfig.headers)
 	if copyConfig.recursive {
 		_, cosPath = concatPath(args[0], cosPath)
 		if !strings.HasSuffix(cosPath, "/") {
@@ -99,7 +100,7 @@ func copyCos(_ *cobra.Command, args []string) error {
 		if ret == 0 {
 			return nil
 		} else {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: "copy folder failed",
 			}
@@ -109,7 +110,7 @@ func copyCos(_ *cobra.Command, args []string) error {
 		if ret == 0 || ret == -2 {
 			return nil
 		} else {
-			return Error{
+			return coshelper.Error{
 				Code:    ret,
 				Message: "copy file failed",
 			}

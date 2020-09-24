@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cli
 
 import (
@@ -22,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/danwakefield/fnmatch"
 	"github.com/huanght1997/cos-go-sdk-v5"
@@ -137,7 +138,7 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 	}
 	if options.Sync && options.Delete {
 		if !options.Force {
-			if !Confirm("WARN: you are deleting some files in the '%s' COS path, please make sure", "no") {
+			if !coshelper.Confirm("WARN: you are deleting some files in the '%s' COS path, please make sure", "no") {
 				return -3
 			}
 		}
@@ -245,7 +246,7 @@ func (client *Client) sourcePathToClient(sourcePath string) (*Client, error) {
 	sourceTmpPath := strings.Split(sourcePath, "/")
 	sourceTmpPath = strings.Split(sourceTmpPath[0], ".")
 	if len(sourceTmpPath) < 2 {
-		return nil, Error{
+		return nil, coshelper.Error{
 			Code:    1,
 			Message: "Invalid source path",
 		}

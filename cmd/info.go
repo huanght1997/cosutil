@@ -13,13 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -52,7 +53,7 @@ func info(_ *cobra.Command, args []string) error {
 	if client.InfoObject(cosPath, human) {
 		return nil
 	} else {
-		return Error{
+		return coshelper.Error{
 			Code:    -1,
 			Message: "info object failed",
 		}

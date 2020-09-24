@@ -13,36 +13,37 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	getBucketAclCmd = &cobra.Command{
+	getBucketACLCmd = &cobra.Command{
 		DisableFlagsInUseLine: true,
 		Use:                   "getbucketacl [-h]",
 		Short:                 "Get bucket ACL",
 		Args:                  cobra.ExactArgs(0),
-		RunE:                  getBucketAcl,
+		RunE:                  getBucketACL,
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(getBucketAclCmd)
+	rootCmd.AddCommand(getBucketACLCmd)
 }
 
-func getBucketAcl(*cobra.Command, []string) error {
+func getBucketACL(*cobra.Command, []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
 	if client.GetBucketACL() {
 		return nil
 	}
-	return Error{
+	return coshelper.Error{
 		Code:    -1,
 		Message: "get bucket acl fail",
 	}

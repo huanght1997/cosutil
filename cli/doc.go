@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/*
-	Package cli implements functions used to call the API in Tencent Cloud
-	COS(Cloud Object Storage). These functions are all in a struct Client.
-
-	If you want to use the functions in this package, you should first fill
-	the field of struct ClientConfig, and call NewClient to generate one
-	Client, and use this client to call the functions you need.
-*/
+// Package cli implements functions used to call the API in Tencent Cloud
+// COS(Cloud Object Storage). These functions are all in a struct Client.
+//
+// If you want to use the functions in this package, you should first fill
+// the field of struct ClientConfig, and call NewClient to generate one
+// Client, and use this client to call the functions you need.
 package cli

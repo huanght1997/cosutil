@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
@@ -20,7 +21,7 @@ import (
 	"strings"
 
 	"cosutil/cli"
-	. "cosutil/coshelper"
+	"cosutil/coshelper"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -96,7 +97,7 @@ func download(_ *cobra.Command, args []string) error {
 	if options.Num > 20 {
 		options.Num = 20
 	}
-	headers := ConvertStringToHeader(downloadConfig.headers)
+	headers := coshelper.ConvertStringToHeader(downloadConfig.headers)
 	var rt int
 	if downloadConfig.recursive {
 		rt = client.DownloadFolder(downloadCosPath, downloadLocalPath, options)
@@ -113,7 +114,7 @@ func download(_ *cobra.Command, args []string) error {
 		log.Info("some operations canceled by user")
 		return nil
 	default:
-		return Error{
+		return coshelper.Error{
 			Code:    rt,
 			Message: "download failed",
 		}
