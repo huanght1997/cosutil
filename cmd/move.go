@@ -95,7 +95,7 @@ func move(_ *cobra.Command, args []string) error {
 		}
 	} else {
 		ret := client.CopyFile(args[0], cosPath, headers, options)
-		switch (ret) {
+		switch ret {
 		case 0:
 			return nil
 		case -2:
