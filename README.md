@@ -1,6 +1,9 @@
 # cosutil
 
+[![Build Status](https://img.shields.io/travis/com/huanght1997/cosutil)](https://travis-ci.com/huanght1997/cosutil)
+[![GitHub release](https://img.shields.io/github/v/release/huanght1997/cosutil)](https://github.com/huanght1997/cosutil/releases)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c16589b2374f44e194cfc2a4060c8580)](https://app.codacy.com/manual/huanght1997/cosutil?utm_source=github.com&utm_medium=referral&utm_content=huanght1997/cosutil&utm_campaign=Badge_Grade_Dashboard)
+![GitHub](https://img.shields.io/github/license/huanght1997/cosutil?color=orange)
 
 ## 介绍
 
@@ -8,11 +11,11 @@
 
 ## 编译指南
 
-1. 升级Go语言版本至1.11以上
+1.  升级Go语言版本至1.11以上
 
-2. `go build`
+2.  `go build`
 
-3. Enjoy :)
+3.  Enjoy :)
 
 ## 使用方法
 
