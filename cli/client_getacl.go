@@ -26,7 +26,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (client *Client) GetObjectAcl(cosPath string) bool {
+// GetBucketACL will get the ACL configured in client and prints it.
+// if all things goes smoothly while requesting the information, return true.
+// Otherwise, return false.
+func (client *Client) GetBucketACL() bool {
+	result, resp, err := client.Client.Bucket.GetACL(context.Background())
+	if resp != nil && resp.StatusCode != 200 {
+		respContent, _ := ioutil.ReadAll(resp.Body)
+		log.Warnf("Get Bucket ACL Response Code: %d, Response Content: %s",
+			resp.StatusCode, string(respContent))
+		return false
+	} else if err != nil {
+		log.Warn(err.Error())
+		return false
+	} else {
+		printACL(client.Config.Bucket, result.AccessControlList)
+		return true
+	}
+}
+
+func (client *Client) GetObjectACL(cosPath string) bool {
 	result, resp, err := client.Client.Object.GetACL(context.Background(), cosPath)
 	if resp != nil && resp.StatusCode != 200 {
 		respContent, _ := ioutil.ReadAll(resp.Body)
@@ -42,10 +61,10 @@ func (client *Client) GetObjectAcl(cosPath string) bool {
 	}
 }
 
-func printACL(cosPath string, acl []cos.ACLGrant) {
+func printACL(path string, acl []cos.ACLGrant) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendRow(table.Row{cosPath, cosPath}, table.RowConfig{AutoMerge: true})
+	t.AppendRow(table.Row{path, path}, table.RowConfig{AutoMerge: true})
 	t.AppendSeparator()
 	for _, grant := range acl {
 		id := ""

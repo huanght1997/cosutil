@@ -45,12 +45,11 @@ func getObjectAcl(_ *cobra.Command, args []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
 	cosPath := strings.TrimLeft(args[0], "/")
-	if client.GetObjectAcl(cosPath) {
+	if client.GetObjectACL(cosPath) {
 		return nil
-	} else {
-		return Error{
-			Code:    -1,
-			Message: "get object acl fail",
-		}
+	}
+	return Error{
+		Code:    -1,
+		Message: "get object acl fail",
 	}
 }

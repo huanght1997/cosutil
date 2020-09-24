@@ -39,12 +39,11 @@ func init() {
 func getBucketAcl(*cobra.Command, []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
-	if client.GetBucketAcl() {
+	if client.GetBucketACL() {
 		return nil
-	} else {
-		return Error{
-			Code:    -1,
-			Message: "get bucket acl fail",
-		}
+	}
+	return Error{
+		Code:    -1,
+		Message: "get bucket acl fail",
 	}
 }
