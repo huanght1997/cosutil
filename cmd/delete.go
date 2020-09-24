@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"cosutil/cli"
+	"cosutil/coshelper"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -71,6 +72,7 @@ func deleteCos(_ *cobra.Command, args []string) error {
 		Versions:  deleteConfig.versions,
 		VersionId: deleteConfig.versionId,
 	}
+	var ret int
 	if deleteConfig.recursive {
 		if !strings.HasSuffix(deleteCosPath, "/") {
 			deleteCosPath += "/"
@@ -78,24 +80,26 @@ func deleteCos(_ *cobra.Command, args []string) error {
 		if deleteCosPath == "/" {
 			deleteCosPath = ""
 		}
-		if client.DeleteFolder(deleteCosPath, options) != 0 {
-			log.Debugf("delete all files under %s successfully!", deleteCosPath)
-			return nil
-		} else {
-			log.Debugf("delete all files under %s failed!", deleteCosPath)
-			return errors.New(fmt.Sprintf("delete all files under %s failed!", deleteCosPath))
-		}
+		ret = client.DeleteFolder(deleteCosPath, options)
 	} else {
 		if deleteCosPath == "" {
 			log.Warn("not support delete empty path")
 			return errors.New("not support delete empty path")
 		}
-		if client.DeleteFile(deleteCosPath, options) != 0 {
-			log.Debugf("delete all files under %s successfully!", deleteCosPath)
-			return nil
-		} else {
-			log.Debugf("delete all files under %s failed!", deleteCosPath)
-			return errors.New(fmt.Sprintf("delete all files under %s failed!", deleteCosPath))
+		ret = client.DeleteFile(deleteCosPath, options)
+	}
+	switch ret {
+	case 0:
+		log.Debugf("delete all files under %s successfully!", deleteCosPath)
+		return nil
+	case -3:
+		log.Infof("delete files under %s canceled by user.", deleteCosPath)
+		return nil
+	default:
+		log.Debugf("delete all files under %s failed!", deleteCosPath)
+		return coshelper.Error{
+			Code:    ret,
+			Message: fmt.Sprintf("delete all files under %s failed!", deleteCosPath),
 		}
 	}
 }

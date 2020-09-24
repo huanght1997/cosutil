@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"strings"
 
 	"cosutil/cli"
@@ -96,16 +95,24 @@ func copyCos(_ *cobra.Command, args []string) error {
 		if strings.HasPrefix(cosPath, "/") {
 			cosPath = cosPath[1:]
 		}
-		if client.CopyFolder(args[0], cosPath, headers, options) != 0 {
+		ret := client.CopyFolder(args[0], cosPath, headers, options)
+		if ret == 0 {
 			return nil
 		} else {
-			return errors.New("copy folder failed")
+			return Error{
+				Code:    ret,
+				Message: "copy folder failed",
+			}
 		}
 	} else {
-		if client.CopyFile(args[0], cosPath, headers, options) != 0 {
+		ret := client.CopyFile(args[0], cosPath, headers, options)
+		if ret == 0 || ret == -2 {
 			return nil
 		} else {
-			return errors.New("copy file failed")
+			return Error{
+				Code:    ret,
+				Message: "copy file failed",
+			}
 		}
 	}
 }

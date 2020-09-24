@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"strings"
 
 	"cosutil/cli"
@@ -102,12 +103,19 @@ func download(_ *cobra.Command, args []string) error {
 	} else {
 		rt = client.DownloadFile(downloadCosPath, downloadLocalPath, headers, options)
 	}
-	if rt != 0 {
+	switch rt {
+	case 0:
+		return nil
+	case -2:
+		log.Info("some files skipped")
+		return nil
+	case -3:
+		log.Info("some operations canceled by user")
+		return nil
+	default:
 		return Error{
 			Code:    rt,
 			Message: "download failed",
 		}
-	} else {
-		return nil
 	}
 }

@@ -44,10 +44,9 @@ func deleteBucket(*cobra.Command, []string) error {
 	client := cli.NewClient(conf)
 	if client.DeleteBucket(forceDeleteBucket) {
 		return nil
-	} else {
-		return Error{
-			Code:    -1,
-			Message: "delete bucket fail",
-		}
+	}
+	return Error{
+		Code:    -1,
+		Message: "delete bucket fail",
 	}
 }

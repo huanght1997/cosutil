@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"strings"
 
 	"cosutil/cli"
@@ -84,7 +85,7 @@ func move(_ *cobra.Command, args []string) error {
 		if strings.HasPrefix(cosPath, "/") {
 			cosPath = cosPath[1:]
 		}
-		if client.CopyFolder(args[0], cosPath, headers, options) != 0 {
+		if client.CopyFolder(args[0], cosPath, headers, options) == 0 {
 			return nil
 		} else {
 			return Error{
@@ -93,9 +94,14 @@ func move(_ *cobra.Command, args []string) error {
 			}
 		}
 	} else {
-		if client.CopyFile(args[0], cosPath, headers, options) != 0 {
+		ret := client.CopyFile(args[0], cosPath, headers, options)
+		switch (ret) {
+		case 0:
 			return nil
-		} else {
+		case -2:
+			log.Info("move folder canceled")
+			return nil
+		default:
 			return Error{
 				Code:    -1,
 				Message: "move file failed",

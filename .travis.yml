@@ -1,6 +1,7 @@
 language: go
 go:
 - 1.13.x
+before_deploy: "./package.sh"
 deploy:
   provider: releases
   api_key:
@@ -9,4 +10,5 @@ deploy:
   file: release/*
   on:
     repo: huanght1997/cosutil
+    tags: true
   skip_cleanup: 'true'
