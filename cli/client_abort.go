@@ -26,12 +26,12 @@ import (
 
 type AbortFile struct {
 	Key      string
-	UploadId string
+	UploadID string
 }
 
 func (client *Client) AbortParts(cosPath string) int {
 	nextKeyMarker := ""
-	nextUploadIdMarker := ""
+	nextUploadIDMarker := ""
 	isTruncated := true
 	successNum, failNum := 0, 0
 	for isTruncated {
@@ -42,7 +42,7 @@ func (client *Client) AbortParts(cosPath string) int {
 					Prefix:         cosPath,
 					MaxUploads:     1000,
 					KeyMarker:      nextKeyMarker,
-					UploadIDMarker: nextUploadIdMarker,
+					UploadIDMarker: nextUploadIDMarker,
 				})
 			if err != nil {
 				log.Warn(err.Error())
@@ -52,32 +52,32 @@ func (client *Client) AbortParts(cosPath string) int {
 					resp.StatusCode, respContent)
 			} else {
 				isTruncated = result.IsTruncated
-				nextUploadIdMarker = result.NextUploadIDMarker
+				nextUploadIDMarker = result.NextUploadIDMarker
 				nextKeyMarker = result.NextKeyMarker
 				for _, file := range result.Uploads {
 					abortList = append(abortList, AbortFile{
 						Key:      file.Key,
-						UploadId: uploadId,
+						UploadID: uploadID,
 					})
 				}
 				for _, file := range abortList {
 					resp, err := client.Client.Object.AbortMultipartUpload(context.Background(),
-						file.Key, file.UploadId)
+						file.Key, file.UploadID)
 					if resp != nil && resp.StatusCode != 200 {
 						respContent, _ := ioutil.ReadAll(resp.Body)
 						log.Warnf("Response Code: %d, Response: %s",
 							resp.StatusCode, respContent)
 						log.Infof("Abort key: %s, UploadId: %s failed",
-							file.Key, file.UploadId)
+							file.Key, file.UploadID)
 						failNum++
 					} else if err != nil {
 						log.Warnf(err.Error())
 						log.Infof("Abort key: %s, UploadId: %s failed",
-							file.Key, file.UploadId)
+							file.Key, file.UploadID)
 						failNum++
 					} else {
 						log.Infof("Abort key: %s, UploadId: %s",
-							file.Key, file.UploadId)
+							file.Key, file.UploadID)
 						successNum++
 					}
 				}

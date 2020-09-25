@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -30,7 +30,7 @@ import (
 
 type DeleteConfig struct {
 	recursive, versions, force bool
-	versionId                  string
+	versionID                  string
 }
 
 var (
@@ -55,7 +55,7 @@ func init() {
 		"Delete files recursively, WARN: all files with the prefix will be deleted!")
 	deleteCmd.Flags().BoolVar(&deleteConfig.versions, "versions", false,
 		"Delete objects with versions")
-	deleteCmd.Flags().StringVar(&deleteConfig.versionId, "versionId", "",
+	deleteCmd.Flags().StringVar(&deleteConfig.versionID, "versionId", "",
 		"Specify versionId of object to list")
 	deleteCmd.Flags().BoolVarP(&deleteConfig.force, "force", "f", false,
 		"Delete directly without confirmation")
@@ -71,7 +71,7 @@ func deleteCos(_ *cobra.Command, args []string) error {
 	options := &cli.DeleteOption{
 		Force:     deleteConfig.force,
 		Versions:  deleteConfig.versions,
-		VersionId: deleteConfig.versionId,
+		VersionID: deleteConfig.versionID,
 	}
 	var ret int
 	if deleteConfig.recursive {

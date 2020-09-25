@@ -31,13 +31,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/huanght1997/cosutil/coshelper"
+
 	"github.com/danwakefield/fnmatch"
 	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/mitchellh/go-homedir"
 	"github.com/schollz/progressbar/v3"
 	log "github.com/sirupsen/logrus"
-
-	"cosutil/coshelper"
 )
 
 type UploadOption struct {
@@ -56,7 +56,7 @@ const (
 
 var (
 	pathDigest   string
-	uploadId     string
+	uploadID     string
 	haveUploaded = make(map[int]struct{})
 	md5List      []string
 	uploadBar    *progressbar.ProgressBar
@@ -426,7 +426,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 	if !options.Force && coshelper.IsFile(pathDigest) {
 		content, err := ioutil.ReadFile(pathDigest)
 		if err == nil {
-			uploadId = string(content)
+			uploadID = string(content)
 			if client.listPart(cosPath) {
 				log.Info("Continue uploading from last breakpoint")
 				return 0
@@ -448,7 +448,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 	}
 	respContent, _ := ioutil.ReadAll(resp.Body)
 	log.Debugf("Init resp: %s", string(respContent))
-	uploadId = result.UploadID
+	uploadID = result.UploadID
 	tmpDir, err := homedir.Expand("~/.tmp")
 	if err != nil {
 		log.Warn(err.Error())
@@ -460,7 +460,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 			log.Debug("Open upload tmp file error.")
 		}
 	}
-	err = ioutil.WriteFile(pathDigest, []byte(uploadId), 0666)
+	err = ioutil.WriteFile(pathDigest, []byte(uploadID), 0666)
 	if err != nil {
 		log.Debug("Open upload tmp file error.")
 	}
@@ -533,13 +533,13 @@ func (client *Client) multiUploadParts(localPath string, cosPath string, options
 		if i+1 == partsNum {
 			go func(offset int64, length int64, idx int) {
 				uploading <- struct{}{}
-				uploadResult <- client.multiUploadPartsData(localPath, cosPath, offset, length, uploadId, idx, options)
+				uploadResult <- client.multiUploadPartsData(localPath, cosPath, offset, length, uploadID, idx, options)
 				<-uploading
 			}(offset, fileSize-offset, i+1)
 		} else {
 			go func(offset int64, length int64, idx int) {
 				uploading <- struct{}{}
-				uploadResult <- client.multiUploadPartsData(localPath, cosPath, offset, length, uploadId, idx, options)
+				uploadResult <- client.multiUploadPartsData(localPath, cosPath, offset, length, uploadID, idx, options)
 				<-uploading
 			}(offset, chunkSize, i+1)
 			// update offset
@@ -568,7 +568,7 @@ func (client *Client) multiUploadParts(localPath string, cosPath string, options
 	}
 }
 
-func (client *Client) multiUploadPartsData(localPath string, cosPath string, offset int64, chunkSize int64, uploadId string, index int, options *UploadOption) int {
+func (client *Client) multiUploadPartsData(localPath string, cosPath string, offset int64, chunkSize int64, uploadID string, index int, options *UploadOption) int {
 	f, err := os.Open(localPath)
 	if err != nil {
 		log.Warn(err.Error())
@@ -585,7 +585,7 @@ func (client *Client) multiUploadPartsData(localPath string, cosPath string, off
 		}
 	}()
 	for j := 0; j <= client.Config.RetryTimes; j++ {
-		resp, err := client.Client.Object.UploadPart(context.Background(), cosPath, uploadId, index, bytes.NewReader(data), nil)
+		resp, err := client.Client.Object.UploadPart(context.Background(), cosPath, uploadID, index, bytes.NewReader(data), nil)
 		if err != nil {
 			log.Warnf("Upload part failed, key: %s, partNumber: %d, round: %d, exception: %s",
 				cosPath, index, j+1, err.Error())
@@ -600,7 +600,7 @@ func (client *Client) multiUploadPartsData(localPath string, cosPath string, off
 			continue
 		}
 		log.Debugf("Multi part result: part: %s, round: %d, code: %d, content: %s",
-			uploadId, j+1, resp.StatusCode, string(content))
+			uploadID, j+1, resp.StatusCode, string(content))
 		if resp.StatusCode == 200 {
 			serverMd5 := resp.Header.Get("ETag")
 			serverMd5 = strings.ReplaceAll(serverMd5, `"`, "")
@@ -638,7 +638,7 @@ func (client *Client) completeMultiUpload(cosPath string) int {
 	completeOption := &cos.CompleteMultipartUploadOptions{
 		Parts: parts,
 	}
-	_, resp, err := client.Client.Object.CompleteMultipartUpload(context.Background(), cosPath, uploadId, completeOption)
+	_, resp, err := client.Client.Object.CompleteMultipartUpload(context.Background(), cosPath, uploadID, completeOption)
 	if resp != nil && resp.StatusCode != 200 {
 		respContent, _ := ioutil.ReadAll(resp.Body)
 		log.Warnf("CompleteMultipartUpload Response Code: %d, Response Content: %s",
@@ -660,7 +660,7 @@ func (client *Client) listPart(cosPath string) bool {
 	nextMarker := ""
 	isTruncated := true
 	for isTruncated {
-		result, resp, err := client.Client.Object.ListParts(context.Background(), cosPath, uploadId, &cos.ObjectListPartsOptions{
+		result, resp, err := client.Client.Object.ListParts(context.Background(), cosPath, uploadID, &cos.ObjectListPartsOptions{
 			MaxParts:         "1000",
 			PartNumberMarker: nextMarker,
 		})

@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import "cosutil/cmd"
+import "github.com/huanght1997/cosutil/cmd"
 
 func main() {
 	cmd.Execute()

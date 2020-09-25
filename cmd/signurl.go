@@ -23,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )
@@ -56,7 +56,7 @@ func signUrl(cmd *cobra.Command, args []string) error {
 	client := cli.NewClient(conf)
 	cosPath := strings.TrimLeft(args[0], "/")
 	url, err := client.Client.Object.GetPresignedURL(context.Background(),
-		http.MethodGet, cosPath, client.Config.SecretId, client.Config.SecretKey,
+		http.MethodGet, cosPath, client.Config.SecretID, client.Config.SecretKey,
 		time.Duration(signUrlTimeout)*time.Second, nil)
 	if err != nil {
 		return coshelper.Error{

@@ -18,14 +18,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/pflag"
 	"strconv"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"gopkg.in/ini.v1"
 )
 
@@ -36,10 +36,10 @@ var (
 		Short:                 "Config your information at first",
 		RunE:                  config,
 	}
-	configSecretId, configSecretKey, configToken, configBucket       string
+	configSecretID, configSecretKey, configToken, configBucket       string
 	configRegion, configEndpoint                                     string
 	configMaxThread, configPartSize, configRetryTimes, configTimeout int
-	configAppId, configVerifyMethod                                  string
+	configAppID, configVerifyMethod                                  string
 	configNoSsl, configAnonymous                                     bool
 )
 
@@ -47,7 +47,7 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 
 	configCmd.Flags().SortFlags = false
-	configCmd.Flags().StringVarP(&configSecretId, "secret_id", "a", "", "Specify your secret id")
+	configCmd.Flags().StringVarP(&configSecretID, "secret_id", "a", "", "Specify your secret id")
 	_ = configCmd.MarkFlagRequired("secret_id")
 	configCmd.Flags().StringVarP(&configSecretKey, "secret_key", "s", "", "Specify your secret key")
 	_ = configCmd.MarkFlagRequired("secret_key")
@@ -62,7 +62,7 @@ func init() {
 	configCmd.Flags().IntVarP(&configPartSize, "part_size", "p", 20, "Specify min part size in MB")
 	configCmd.Flags().IntVar(&configRetryTimes, "retry", 5, "Specify retry times")
 	configCmd.Flags().IntVar(&configTimeout, "timeout", 60, "Specify request timeout")
-	configCmd.Flags().StringVarP(&configAppId, "appid", "u", "", "Specify your appid")
+	configCmd.Flags().StringVarP(&configAppID, "appid", "u", "", "Specify your appid")
 	configCmd.Flags().StringVar(&configVerifyMethod, "verify", "md5", "Specify your encryption method")
 	configCmd.Flags().BoolVar(&configNoSsl, "do-not-use-ssl", false, "Use http://")
 	configCmd.Flags().BoolVar(&configAnonymous, "anonymous", false, "Anonymous operation")
@@ -82,7 +82,7 @@ func config(cmd *cobra.Command, _ []string) error {
 			Message: "cannot create section 'common'",
 		}
 	}
-	newKey(commonSection, "secret_id", configSecretId)
+	newKey(commonSection, "secret_id", configSecretID)
 	newKey(commonSection, "secret_key", configSecretKey)
 	if configToken != "" {
 		newKey(commonSection, "token", configToken)
@@ -103,8 +103,8 @@ func config(cmd *cobra.Command, _ []string) error {
 	newKey(commonSection, "part_size", strconv.Itoa(configPartSize))
 	newKey(commonSection, "retry", strconv.Itoa(configRetryTimes))
 	newKey(commonSection, "timeout", strconv.Itoa(configTimeout))
-	if configAppId != "" {
-		newKey(commonSection, "appid", configAppId)
+	if configAppID != "" {
+		newKey(commonSection, "appid", configAppID)
 	}
 	if configNoSsl {
 		newKey(commonSection, "schema", "http")

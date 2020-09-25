@@ -6,6 +6,7 @@ fi
 
 cosutil_version=$(./cosutil -v | cut -d' ' -f3)
 echo "build version: $cosutil_version"
+rm cosutil
 
 rm -rf ./release
 mkdir -p ./release

@@ -17,11 +17,12 @@ limitations under the License.
 package cmd
 
 import (
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"strings"
+
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 // PutObjectACLConfig defines ACL config for object.

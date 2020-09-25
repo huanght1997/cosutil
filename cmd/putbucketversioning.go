@@ -17,10 +17,10 @@ limitations under the License.
 package cmd
 
 import (
-	"cosutil/cli"
 	"strings"
 
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/spf13/cobra"
 )

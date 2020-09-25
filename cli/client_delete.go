@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
@@ -31,7 +31,7 @@ import (
 type DeleteOption struct {
 	Force     bool
 	Versions  bool
-	VersionId string
+	VersionID string
 }
 
 func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
@@ -49,7 +49,7 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 	totalDeleteFileNum := 0
 	nextMarker := ""
 	keyMarker := ""
-	versionIdMarker := ""
+	versionIDMarker := ""
 	isTruncated := true
 	for isTruncated {
 		deleteList := make([]cos.Object, 0)
@@ -57,14 +57,14 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 		for i := 0; i <= client.Config.RetryTimes; i++ {
 			var resp *cos.Response
 			var err error
-			if versionIdMarker == "null" {
-				versionIdMarker = ""
+			if versionIDMarker == "null" {
+				versionIDMarker = ""
 			}
 			if versions {
 				result, resp, err = client.Client.Bucket.GetObjectVersions(context.Background(), &cos.BucketGetObjectVersionsOptions{
 					Prefix:          cosPath,
 					KeyMarker:       keyMarker,
-					VersionIdMarker: versionIdMarker,
+					VersionIdMarker: versionIDMarker,
 					MaxKeys:         1000,
 				})
 			} else {
@@ -96,7 +96,7 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 			rt := result.(*cos.BucketGetObjectVersionsResult)
 			isTruncated = rt.IsTruncated
 			keyMarker = rt.NextKeyMarker
-			versionIdMarker = rt.NextVersionIdMarker
+			versionIDMarker = rt.NextVersionIdMarker
 			// if delete marker found, this version is specified for deleting.
 			for _, file := range rt.DeleteMarker {
 				deleteList = append(deleteList, cos.Object{
@@ -170,7 +170,7 @@ func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {
 			return -3
 		}
 	}
-	resp, err := client.Client.Object.DeleteVersion(context.Background(), cosPath, options.VersionId)
+	resp, err := client.Client.Object.DeleteVersion(context.Background(), cosPath, options.VersionID)
 	if err != nil {
 		log.Warn(err.Error())
 		return -1
@@ -181,12 +181,12 @@ func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {
 			resp.StatusCode, resp.Header, string(respContent))
 	}
 	if resp.StatusCode == 204 || resp.StatusCode == 200 {
-		if options.VersionId == "" {
+		if options.VersionID == "" {
 			log.Infof("Delete cos://%s/%s",
 				client.Config.Bucket, cosPath)
 		} else {
 			log.Infof("Delete cos://%s/%s?versionId=%s",
-				client.Config.Bucket, cosPath, options.VersionId)
+				client.Config.Bucket, cosPath, options.VersionID)
 		}
 		return 0
 	} else {

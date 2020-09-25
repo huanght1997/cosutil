@@ -36,7 +36,7 @@ type Client struct {
 }
 
 type ClientConfig struct {
-	SecretId     string
+	SecretID     string
 	SecretKey    string
 	Token        string
 	Bucket       string
@@ -75,7 +75,7 @@ func NewClient(config *ClientConfig) *Client {
 		config.Schema, config.Bucket, config.Endpoint))
 	b := &cos.BaseURL{BucketURL: u}
 	authTransport := cos.AuthorizationTransport{
-		SecretID:  config.SecretId,
+		SecretID:  config.SecretID,
 		SecretKey: config.SecretKey,
 	}
 	if config.Token != "" {
@@ -112,9 +112,9 @@ func LoadConf(configPath string) *ClientConfig {
 		log.Fatal("[common] section could not be found, please check your config file.")
 	} else {
 		if section.HasKey("secret_id") {
-			config.SecretId = section.Key("secret_id").String()
+			config.SecretID = section.Key("secret_id").String()
 		} else if section.HasKey("access_id") {
-			config.SecretId = section.Key("access_id").String()
+			config.SecretID = section.Key("access_id").String()
 		}
 
 		config.SecretKey = section.Key("secret_key").String()

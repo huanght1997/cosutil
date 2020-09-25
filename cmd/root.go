@@ -19,8 +19,8 @@ package cmd
 import (
 	"os"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"

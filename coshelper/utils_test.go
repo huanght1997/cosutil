@@ -52,3 +52,7 @@ func TestConvertStringToHeader(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertTime(t *testing.T) {
+
+}

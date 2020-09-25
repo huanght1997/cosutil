@@ -17,19 +17,19 @@ limitations under the License.
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"strings"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/mitchellh/go-homedir"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 type DownloadConfig struct {
 	force, recursive, sync, skipMd5, delLocal bool
-	headers, versionId, include, ignore       string
+	headers, versionID, include, ignore       string
 	num                                       int
 }
 
@@ -62,7 +62,7 @@ func init() {
 		"Download and skip the same file")
 	downloadCmd.Flags().StringVarP(&downloadConfig.headers, "headers", "H", "{}",
 		"Specify HTTP headers")
-	downloadCmd.Flags().StringVar(&downloadConfig.versionId, "versionId", "",
+	downloadCmd.Flags().StringVar(&downloadConfig.versionID, "versionId", "",
 		"Specify versionId of object to list")
 	downloadCmd.Flags().StringVar(&downloadConfig.include, "include", "*",
 		"Specify filter rules, separated by commas: Example: *.txt,*.docx,*.ppt")

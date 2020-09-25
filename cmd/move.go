@@ -17,12 +17,12 @@ limitations under the License.
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"strings"
 
-	"cosutil/cli"
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/cli"
+	"github.com/huanght1997/cosutil/coshelper"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 

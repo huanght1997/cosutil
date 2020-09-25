@@ -27,7 +27,7 @@ import (
 func (client *Client) ListMultipartObjects(cosPath string) bool {
 	log.Debug("Getting uploaded parts")
 	keyMarker := ""
-	uploadIdMarker := ""
+	uploadIDMarker := ""
 	isTruncated := true
 	partNum := 0
 	for isTruncated {
@@ -37,7 +37,7 @@ func (client *Client) ListMultipartObjects(cosPath string) bool {
 			Prefix:         cosPath,
 			MaxUploads:     10,
 			KeyMarker:      keyMarker,
-			UploadIDMarker: uploadIdMarker,
+			UploadIDMarker: uploadIDMarker,
 		})
 		if resp != nil && resp.StatusCode != 200 {
 			respContent, _ := ioutil.ReadAll(resp.Body)
@@ -49,7 +49,7 @@ func (client *Client) ListMultipartObjects(cosPath string) bool {
 			return false
 		}
 		keyMarker = result.NextKeyMarker
-		uploadIdMarker = result.NextUploadIDMarker
+		uploadIDMarker = result.NextUploadIDMarker
 		isTruncated = result.IsTruncated
 		for _, upload := range result.Uploads {
 			partNum++

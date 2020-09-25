@@ -21,7 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -43,7 +43,7 @@ type FileDesc struct {
 	Size      int
 	Time      string
 	Class     string
-	VersionId string
+	VersionID string
 }
 
 func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
@@ -58,12 +58,12 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 	fileNum := 0
 	totalSize := 0
 	keyMarker := ""
-	versionIdMarker := ""
+	versionIDMarker := ""
 	for isTruncated {
 		filesInfo := make([]FileDesc, 0)
 		for i := 0; i <= client.Config.RetryTimes; i++ {
-			if versionIdMarker == "null" {
-				versionIdMarker = ""
+			if versionIDMarker == "null" {
+				versionIDMarker = ""
 			}
 			var resp *cos.Response
 			var err error
@@ -73,7 +73,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 					Prefix:          cosPath,
 					Delimiter:       delimiter,
 					KeyMarker:       keyMarker,
-					VersionIdMarker: versionIdMarker,
+					VersionIdMarker: versionIDMarker,
 					MaxKeys:         1000,
 				})
 			} else {
@@ -95,13 +95,13 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 					result := res.(*cos.BucketGetObjectVersionsResult)
 					isTruncated = result.IsTruncated
 					keyMarker = result.NextKeyMarker
-					versionIdMarker = result.NextVersionIdMarker
+					versionIDMarker = result.NextVersionIdMarker
 					for _, folder := range result.CommonPrefixes {
 						filesInfo = append(filesInfo, FileDesc{
 							Path:      folder,
 							Type:      "DIR",
 							Time:      "",
-							VersionId: "",
+							VersionID: "",
 						})
 					}
 					for _, file := range result.DeleteMarker {
@@ -110,7 +110,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 							Path:      file.Key,
 							Type:      "",
 							Time:      coshelper.ConvertTime(file.LastModified),
-							VersionId: file.VersionId,
+							VersionID: file.VersionId,
 						})
 						if fileNum == options.Num {
 							break
@@ -125,7 +125,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 								Type:      "File",
 								Size:      file.Size,
 								Time:      coshelper.ConvertTime(file.LastModified),
-								VersionId: file.VersionId,
+								VersionID: file.VersionId,
 							})
 							if fileNum == options.Num {
 								break
@@ -201,14 +201,14 @@ func printFilesInfo(filesInfo []FileDesc, options *ListOption) {
 					row.Path,
 					coshelper.Humanize(row.Size, options.Human),
 					row.Time,
-					row.VersionId,
+					row.VersionID,
 				})
 			} else {
 				t.AppendRow(table.Row{
 					row.Path,
 					row.Type,
 					row.Time,
-					row.VersionId,
+					row.VersionID,
 				})
 			}
 		}

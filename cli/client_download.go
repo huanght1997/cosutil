@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"cosutil/coshelper"
+	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/danwakefield/fnmatch"
 	"github.com/huanght1997/cos-go-sdk-v5"
