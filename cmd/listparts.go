@@ -47,12 +47,11 @@ func listPart(_ *cobra.Command, args []string) error {
 	}
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
-	if client.ListMultipartObjects(cosPath) {
-		return nil
-	} else {
+	if !client.ListMultipartObjects(cosPath) {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "list multipart object failed",
 		}
 	}
+	return nil
 }

@@ -159,9 +159,8 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 	}
 	if totalDeleteFileNum == haveDeletedNum {
 		return 0
-	} else {
-		return -1
 	}
+	return -1
 }
 
 func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {

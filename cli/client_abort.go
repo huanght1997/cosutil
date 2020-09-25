@@ -87,9 +87,8 @@ func (client *Client) AbortParts(cosPath string) int {
 	}
 	log.Infof("%d files successful, %d files failed",
 		successNum, failNum)
-	if failNum == 0 {
-		return 0
-	} else {
+	if failNum != 0 {
 		return -1
 	}
+	return 0
 }

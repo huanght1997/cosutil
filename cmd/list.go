@@ -70,12 +70,11 @@ func cosList(_ *cobra.Command, args []string) error {
 		Human:     listConfig.human,
 		Versions:  listConfig.versions,
 	}
-	if client.ListObjects(cosPath, options) {
-		return nil
-	} else {
+	if !client.ListObjects(cosPath, options) {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "list objects failed",
 		}
 	}
+	return nil
 }

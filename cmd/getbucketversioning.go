@@ -40,12 +40,11 @@ func init() {
 func getBucketVersioning(*cobra.Command, []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
-	if client.GetBucketVersioning() {
-		return nil
-	} else {
+	if !client.GetBucketVersioning() {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "get bucket versioning fail",
 		}
 	}
+	return nil
 }

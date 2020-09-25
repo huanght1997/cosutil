@@ -50,12 +50,11 @@ func info(_ *cobra.Command, args []string) error {
 	cosPath := strings.TrimLeft(args[0], "/")
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
-	if client.InfoObject(cosPath, human) {
-		return nil
-	} else {
+	if !client.InfoObject(cosPath, human) {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "info object failed",
 		}
 	}
+	return nil
 }

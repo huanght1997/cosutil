@@ -107,13 +107,12 @@ func copyCos(_ *cobra.Command, args []string) error {
 		}
 	} else {
 		ret := client.CopyFile(args[0], cosPath, headers, options)
-		if ret == 0 || ret == -2 {
-			return nil
-		} else {
+		if ret != 0 && ret != -2 {
 			return coshelper.Error{
 				Code:    ret,
 				Message: "copy file failed",
 			}
 		}
+		return nil
 	}
 }

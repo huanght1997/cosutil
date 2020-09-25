@@ -54,7 +54,6 @@ func abort(_ *cobra.Command, args []string) error {
 			Code:    -1,
 			Message: "Failed to abort parts",
 		}
-	} else {
-		return nil
 	}
+	return nil
 }

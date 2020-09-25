@@ -151,11 +151,10 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 				delSucc, delFail)
 		}
 	}
-	if failNum == 0 {
-		return 0
-	} else {
+	if failNum != 0 {
 		return -1
 	}
+	return 0
 }
 
 // sourcePath: bucket-appid.cos.ap-guangzhou.myqcloud.com/path/to/file

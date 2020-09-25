@@ -165,11 +165,10 @@ func (client *Client) DownloadFolder(cosPath string, localPath string, options *
 				delSucc, delFail)
 		}
 	}
-	if failNum == 0 {
-		return 0
-	} else {
+	if failNum != 0 {
 		return -1
 	}
+	return 0
 }
 
 func (client *Client) DownloadFile(cosPath string, localPath string, _ *http.Header, options *DownloadOption) int {

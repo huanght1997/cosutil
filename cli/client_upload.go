@@ -72,9 +72,8 @@ func (client *Client) UploadFile(localPath string, cosPath string, headers *http
 	// Less than PartSize (MB), use put, force multipart upload if fileSize > 5GB
 	if fileSize <= int64(client.Config.PartSize)*1024*1024 && fileSize <= singleUploadMaxSize {
 		return client.singleUpload(localPath, cosPath, headers, options)
-	} else {
-		return client.multipartUpload(localPath, cosPath, headers, options)
 	}
+	return client.multipartUpload(localPath, cosPath, headers, options)
 }
 
 // Upload a folder.

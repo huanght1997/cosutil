@@ -57,12 +57,11 @@ func putBucketVersioning(_ *cobra.Command, args []string) error {
 	}
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
-	if client.PutBucketVersioning(versioning) {
-		return nil
-	} else {
+	if !client.PutBucketVersioning(versioning) {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "put bucket versioning fail",
 		}
 	}
+	return nil
 }

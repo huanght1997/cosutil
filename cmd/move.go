@@ -86,9 +86,14 @@ func move(_ *cobra.Command, args []string) error {
 		if strings.HasPrefix(cosPath, "/") {
 			cosPath = cosPath[1:]
 		}
-		if client.CopyFolder(args[0], cosPath, headers, options) == 0 {
+		ret := client.CopyFolder(args[0], cosPath, headers, options)
+		switch ret {
+		case 0:
 			return nil
-		} else {
+		case -3:
+			log.Info("Sync folder canceled by user")
+			return nil
+		default:
 			return coshelper.Error{
 				Code:    -1,
 				Message: "move folder failed",

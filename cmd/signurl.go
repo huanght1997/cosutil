@@ -63,8 +63,7 @@ func signUrl(cmd *cobra.Command, args []string) error {
 			Code:    -1,
 			Message: err.Error(),
 		}
-	} else {
-		fmt.Println(url)
-		return nil
 	}
+	fmt.Println(url)
+	return nil
 }

@@ -89,13 +89,12 @@ func restore(_ *cobra.Command, args []string) error {
 		}
 	} else {
 		ret := client.RestoreFile(cosPath, options)
-		if ret == 0 {
-			return nil
-		} else {
+		if ret != 0 {
 			return coshelper.Error{
 				Code:    ret,
 				Message: "restore failed",
 			}
 		}
+		return nil
 	}
 }

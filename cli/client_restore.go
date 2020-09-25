@@ -81,9 +81,8 @@ func (client *Client) RestoreFolder(cosPath string, options *RestoreOption) int 
 			}
 			if i == client.Config.RetryTimes {
 				return -1
-			} else {
-				time.Sleep((1 << i) * time.Second)
 			}
+			time.Sleep((1 << i) * time.Second)
 		}
 	}
 	log.Infof("%d files successful, %d files have in progress, %d files failed",

@@ -106,9 +106,8 @@ func Confirm(question string, defaultAnswer string) bool {
 		value, ok := valid[choice]
 		if ok {
 			return value
-		} else {
-			fmt.Println("Please respond with 'yes' or 'no' (or 'y' or 'n').")
 		}
+		fmt.Println("Please respond with 'yes' or 'no' (or 'y' or 'n').")
 	}
 }
 

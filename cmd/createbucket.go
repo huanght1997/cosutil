@@ -49,12 +49,11 @@ func createBucket(_ *cobra.Command, args []string) error {
 		conf.Bucket = args[0] + conf.Bucket[appidIndex:]
 	}
 	client := cli.NewClient(conf)
-	if client.CreateBucket() {
-		return nil
-	} else {
+	if !client.CreateBucket() {
 		return coshelper.Error{
 			Code:    -1,
 			Message: "create bucket fail",
 		}
 	}
+	return nil
 }
