@@ -23,10 +23,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/mitchellh/go-homedir"
 	"github.com/schollz/progressbar/v3"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"gopkg.in/ini.v1"
 )
 
@@ -56,7 +56,7 @@ type PathPair struct {
 }
 
 const (
-	VERSION = "1.8.6.19"
+	VERSION = "1.8.6.20"
 )
 
 var (

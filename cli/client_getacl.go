@@ -22,9 +22,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/jedib0t/go-pretty/v6/table"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 // GetBucketACL will get the ACL configured in client and prints it.

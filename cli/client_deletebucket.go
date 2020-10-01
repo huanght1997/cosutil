@@ -38,8 +38,7 @@ func (client *Client) DeleteBucket(force bool) bool {
 	if err != nil {
 		log.Warn(err.Error())
 		return false
-	} else {
-		log.Infof("Delete cos://%s", client.Config.Bucket)
-		return true
 	}
+	log.Infof("Delete cos://%s", client.Config.Bucket)
+	return true
 }

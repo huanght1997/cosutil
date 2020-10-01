@@ -7,7 +7,7 @@
 
 ## 介绍
 
-非官方腾讯云COS命令行工具，用Go语言编写，基于改进的腾讯云COS Go SDK构建。
+非官方腾讯云COS命令行工具，用Go语言编写，基于 [腾讯云COS Go SDK](https://github.com/tencentyun/cos-go-sdk-v5) 构建。
 
 ## 编译指南
 

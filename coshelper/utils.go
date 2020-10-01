@@ -47,7 +47,7 @@ func GetFileMd5(path string) string {
 	h := md5.New()
 
 	if _, err := io.Copy(h, r); err != nil {
-		log.Warn("Calculate MD5 failed")
+		log.Warnf("Calculate MD5 of '%s' failed", path)
 		return ""
 	}
 

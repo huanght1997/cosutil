@@ -26,8 +26,8 @@ import (
 	"github.com/huanght1997/cosutil/coshelper"
 
 	"github.com/danwakefield/fnmatch"
-	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 type CopyOption struct {

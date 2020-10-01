@@ -24,8 +24,8 @@ import (
 
 	"github.com/huanght1997/cosutil/coshelper"
 
-	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 type DeleteOption struct {
@@ -168,7 +168,9 @@ func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {
 			return -3
 		}
 	}
-	resp, err := client.Client.Object.DeleteVersion(context.Background(), cosPath, options.VersionID)
+	resp, err := client.Client.Object.Delete(context.Background(), cosPath, &cos.ObjectDeleteOptions{
+		VersionId: options.VersionID,
+	})
 	if err != nil {
 		log.Warn(err.Error())
 		return -1

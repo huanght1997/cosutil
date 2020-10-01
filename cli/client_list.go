@@ -23,10 +23,10 @@ import (
 
 	"github.com/huanght1997/cosutil/coshelper"
 
-	"github.com/huanght1997/cos-go-sdk-v5"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 type ListOption struct {

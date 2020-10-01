@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 func (client *Client) CreateBucket() bool {
@@ -37,8 +37,7 @@ func (client *Client) CreateBucket() bool {
 			log.Warn(err.Error())
 		}
 		return false
-	} else {
-		log.Infof("Create cos://%s", client.Config.Bucket)
-		return true
 	}
+	log.Infof("Create cos://%s", client.Config.Bucket)
+	return true
 }
