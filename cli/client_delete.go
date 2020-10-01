@@ -153,7 +153,6 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 		log.Infof("The directory does not exist")
 		return -1
 	}
-	log.Info("Delete the remaining files again")
 	if !versions {
 		log.Infof("%d files successful, %d files failed", haveDeletedNum, totalDeleteFileNum-haveDeletedNum)
 	}

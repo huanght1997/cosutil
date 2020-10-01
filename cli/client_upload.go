@@ -192,9 +192,11 @@ func (client *Client) singleUpload(localPath string, cosPath string, headers *ht
 	if !options.SkipMd5 {
 		// if file size > 20M
 		if fileSize > 20*1024*1024 {
-			log.Info(`MD5 is being calculated, please wait. If you do not need to calculate MD5, you can use --skipmd5 to skip`)
+			log.Infof(`The MD5 of file "%s" is being calculated, please wait. If you do not need to calculate MD5, you can use --skipmd5 to skip`,
+				localPath)
 		}
 		localMd5 = coshelper.GetFileMd5(localPath)
+		log.Debugf(`The MD5 of file "%s" is "%s"`, localPath, localMd5)
 	}
 	if !client.localToRemoteSyncCheck(localPath, cosPath, localMd5, fileSize, options) {
 		return -2
@@ -210,16 +212,13 @@ func (client *Client) singleUpload(localPath string, cosPath string, headers *ht
 		}
 		headers.Set("x-cos-meta-md5", localMd5)
 		file, _ := os.Open(localPath)
-		resp, err := client.Client.Object.Put(context.Background(), cosPath, file, &cos.ObjectPutOptions{
+		_, err := client.Client.Object.Put(context.Background(), cosPath, file, &cos.ObjectPutOptions{
 			ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
 				XOptionHeader: headers,
 			},
 		})
 		_ = file.Close()
-		if resp != nil && resp.StatusCode != 200 {
-			respContent, _ := ioutil.ReadAll(resp.Body)
-			log.Warnf("PUT Object Response Code: %d, Response Content: %s", resp.StatusCode, string(respContent))
-		} else if err != nil {
+		if err != nil {
 			log.Warn(err.Error())
 		} else {
 			return 0
@@ -228,6 +227,7 @@ func (client *Client) singleUpload(localPath string, cosPath string, headers *ht
 			time.Sleep((1 << j) * time.Second)
 		}
 	}
+	log.Warnf(`Upload file "%s" FAILED.`, localPath)
 	return -1
 }
 
@@ -242,6 +242,7 @@ func (client *Client) uploadFiles(uploadFileList []PathPair, headers *http.Heade
 		if err != nil {
 			failNum++
 			log.Warn(err.Error())
+			log.Warnf(`Upload file "%s" FAILED.`, pathPair.LocalPath)
 			continue
 		}
 		fileSize := f.Size()
@@ -277,6 +278,7 @@ func (client *Client) uploadFiles(uploadFileList []PathPair, headers *http.Heade
 		case -2:
 			skipNum++
 		default:
+			log.Warnf(`Upload file "%s" FAILED.`, pathPair.LocalPath)
 			failNum++
 		}
 	}
@@ -291,8 +293,10 @@ func (client *Client) multipartUpload(localPath string, cosPath string, headers 
 	}
 	fileSize := f.Size()
 	if !options.SkipMd5 {
-		log.Info("MD5 is being calculated, please wait. If you do not need to calculate md5, you can use --skipmd5 to skip")
+		log.Infof(`The MD5 of file "%s" is being calculated, please wait. If you do not need to calculate MD5, you can use --skipmd5 to skip`,
+			localPath)
 		fileMd5 = coshelper.GetFileMd5(localPath)
+		log.Debugf(`The MD5 of file "%s" is "%s"`, localPath, fileMd5)
 	}
 	if !client.localToRemoteSyncCheck(localPath, cosPath, fileMd5, fileSize, options) {
 		return -2
@@ -380,16 +384,13 @@ func (client *Client) localToRemoteSyncDelete(localPath string, cosPath string) 
 		var deleteList []string
 		for i := 0; i <= client.Config.RetryTimes; i++ {
 			// get objects in the bucket
-			result, resp, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+			result, _, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 				Prefix:    cosPath,
 				Delimiter: "",
 				Marker:    nextMarker,
 				MaxKeys:   1000,
 			})
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warnf("Bucket Get Response Code: %d, Response Content: %s", resp.StatusCode, respContent)
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				// if true, some objects are not shown, continue
@@ -422,6 +423,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 	// If we can find unfinished task, get the UploadID.
 	pathDigest = getPathDigest(localPath, cosPath)
 	md5List = make([]string, 0)
+	haveUploaded = make(map[int]struct{})
 	if !options.Force && coshelper.IsFile(pathDigest) {
 		content, err := ioutil.ReadFile(pathDigest)
 		if err == nil {
@@ -437,11 +439,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 			XOptionHeader: headers,
 		},
 	})
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("InitiateMultipartUpload Response Code: %d, Response Content: %s", resp.StatusCode, string(respContent))
-		return -1
-	} else if err != nil {
+	if err != nil {
 		log.Warn(err.Error())
 		return -1
 	}
@@ -591,15 +589,13 @@ func (client *Client) multiUploadPartsData(localPath string, cosPath string, off
 			time.Sleep((1 << j) * time.Second)
 			continue
 		}
-		content, err := ioutil.ReadAll(resp.Body)
+		_, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Warnf("Upload part failed, key: %s, partNumber: %d, round: %d, exception: %s",
 				cosPath, index, j+1, err.Error())
 			time.Sleep((1 << j) * time.Second)
 			continue
 		}
-		log.Debugf("Multi part result: part: %s, round: %d, code: %d, content: %s",
-			uploadID, j+1, resp.StatusCode, string(content))
 		if resp.StatusCode == 200 {
 			serverMd5 := resp.Header.Get("ETag")
 			serverMd5 = strings.ReplaceAll(serverMd5, `"`, "")

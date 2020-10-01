@@ -56,7 +56,7 @@ type PathPair struct {
 }
 
 const (
-	VERSION = "1.8.6.18"
+	VERSION = "1.8.6.19"
 )
 
 var (
@@ -71,8 +71,12 @@ var (
 
 // Create a new client.
 func NewClient(config *ClientConfig) *Client {
-	u, _ := url.Parse(fmt.Sprintf("%s://%s.%s",
-		config.Schema, config.Bucket, config.Endpoint))
+	urlString := fmt.Sprintf("%s://%s.%s",
+		config.Schema, config.Bucket, config.Endpoint)
+	u, err := url.Parse(urlString)
+	if err != nil {
+		log.Fatalf("Failed to parse `%s`", urlString)
+	}
 	b := &cos.BaseURL{BucketURL: u}
 	authTransport := cos.AuthorizationTransport{
 		SecretID:  config.SecretID,

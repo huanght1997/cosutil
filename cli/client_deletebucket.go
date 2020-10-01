@@ -18,8 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,17 +34,12 @@ func (client *Client) DeleteBucket(force bool) bool {
 			Versions: true,
 		})
 	}
-	resp, err := client.Client.Bucket.Delete(context.Background())
-	if resp != nil && resp.StatusCode != 204 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Delete bucket Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	_, err := client.Client.Bucket.Delete(context.Background())
+	if err != nil {
 		log.Warn(err.Error())
 		return false
 	} else {
-		log.Info("Delete cos://%s", client.Config.Bucket)
+		log.Infof("Delete cos://%s", client.Config.Bucket)
 		return true
 	}
 }

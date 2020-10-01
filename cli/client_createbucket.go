@@ -18,20 +18,24 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
+	"fmt"
+	"strings"
 
+	"github.com/huanght1997/cos-go-sdk-v5"
 	log "github.com/sirupsen/logrus"
 )
 
 func (client *Client) CreateBucket() bool {
-	resp, err := client.Client.Bucket.Put(context.Background(), nil)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Create Bucket Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
-		log.Warnf(err.Error())
+	_, err := client.Client.Bucket.Put(context.Background(), nil)
+	if err != nil {
+		r, ok := err.(*cos.ErrorResponse)
+		if ok {
+			log.Warnf(fmt.Sprintf("%v %s: %d %v(Message: %v)",
+				r.Response.Request.Method, strings.ReplaceAll(r.Response.Request.URL.String(), "%", "%%"),
+				r.Response.StatusCode, r.Code, r.Message))
+		} else {
+			log.Warn(err.Error())
+		}
 		return false
 	} else {
 		log.Infof("Create cos://%s", client.Config.Bucket)

@@ -21,7 +21,6 @@ import (
 
 	"github.com/huanght1997/cosutil/cli"
 	"github.com/huanght1997/cosutil/coshelper"
-
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -54,15 +53,17 @@ func Execute() {
 func init() {
 	defaultConfigPath := "~/.cos.conf"
 	defaultLogPath := "~/.cos.log"
-	expandedDefaultConfPath, err := homedir.Expand(defaultConfigPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	expandedDefaultLogPath, err := homedir.Expand(defaultLogPath)
-	if err != nil {
-		log.Fatal(err)
-	}
 	cobra.OnInitialize(func() {
+		expandedConfPath, err := homedir.Expand(cli.ConfigPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cli.ConfigPath = expandedConfPath
+		expandedLogPath, err := homedir.Expand(cli.LogPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cli.LogPath = expandedLogPath
 		coshelper.InitLogger(cli.LogPath, cli.LogSize, cli.LogBackupCount, cli.DebugMode)
 	})
 	rootCmd.Flags().SortFlags = false
@@ -72,9 +73,9 @@ func init() {
 		"Specify bucket")
 	rootCmd.Flags().StringVarP(&cli.Region, "region", "r", "",
 		"Specify region")
-	rootCmd.Flags().StringVarP(&cli.ConfigPath, "config_path", "c", expandedDefaultConfPath,
+	rootCmd.Flags().StringVarP(&cli.ConfigPath, "config_path", "c", defaultConfigPath,
 		"Specify config path")
-	rootCmd.Flags().StringVarP(&cli.LogPath, "log_path", "l", expandedDefaultLogPath,
+	rootCmd.Flags().StringVarP(&cli.LogPath, "log_path", "l", defaultLogPath,
 		"Specify log path")
 	rootCmd.Flags().IntVar(&cli.LogSize, "log_size", 1,
 		"Specify max log size in MB")
