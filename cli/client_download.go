@@ -376,14 +376,15 @@ func (client *Client) getPartsData(localPath string, cosPath string, offset int6
 		}
 		// make a buffer to keep chunks
 		buf := make([]byte, 1024*1024)
+		var totalBytes int64 = 0
 		for {
 			n, err := resp.Body.Read(buf)
 			if err != nil && err != io.EOF {
 				if ferr := f.Close(); ferr != nil {
 					log.Warn(ferr.Error())
 				}
-				time.Sleep((1 << j) * time.Second)
 				log.Warn(err.Error())
+				time.Sleep((1 << j) * time.Second)
 				continue
 			}
 			if n == 0 {
@@ -391,11 +392,18 @@ func (client *Client) getPartsData(localPath string, cosPath string, offset int6
 			}
 
 			if _, err := f.Write(buf[:n]); err != nil {
-				time.Sleep((1 << j) * time.Second)
 				log.Warn(err.Error())
+				time.Sleep((1 << j) * time.Second)
 				continue
 			}
+			totalBytes += int64(n)
 			go updateProgress(downloadBar, int64(n), downloadDone)
+		}
+		if length != totalBytes {
+			log.Warnf("Download incomplete part of [%s]",
+				fmt.Sprintf("bytes=%d-%d", offset, offset+length-1))
+			time.Sleep((1 << j) * time.Second)
+			continue
 		}
 		return 0
 	}

@@ -18,8 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/tencentyun/cos-go-sdk-v5"
 )
@@ -37,7 +35,7 @@ func (client *Client) AbortParts(cosPath string) int {
 	for isTruncated {
 		abortList := make([]AbortFile, 0)
 		for i := 0; i < client.Config.RetryTimes; i++ {
-			result, resp, err := client.Client.Bucket.ListMultipartUploads(context.Background(),
+			result, _, err := client.Client.Bucket.ListMultipartUploads(context.Background(),
 				&cos.ListMultipartUploadsOptions{
 					Prefix:         cosPath,
 					MaxUploads:     1000,
@@ -46,10 +44,6 @@ func (client *Client) AbortParts(cosPath string) int {
 				})
 			if err != nil {
 				log.Warn(err.Error())
-			} else if resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warnf("Response Code: %d, Response: %s",
-					resp.StatusCode, respContent)
 			} else {
 				isTruncated = result.IsTruncated
 				nextUploadIDMarker = result.NextUploadIDMarker
@@ -57,20 +51,13 @@ func (client *Client) AbortParts(cosPath string) int {
 				for _, file := range result.Uploads {
 					abortList = append(abortList, AbortFile{
 						Key:      file.Key,
-						UploadID: uploadID,
+						UploadID: file.UploadID,
 					})
 				}
 				for _, file := range abortList {
-					resp, err := client.Client.Object.AbortMultipartUpload(context.Background(),
+					_, err := client.Client.Object.AbortMultipartUpload(context.Background(),
 						file.Key, file.UploadID)
-					if resp != nil && resp.StatusCode != 200 {
-						respContent, _ := ioutil.ReadAll(resp.Body)
-						log.Warnf("Response Code: %d, Response: %s",
-							resp.StatusCode, respContent)
-						log.Infof("Abort key: %s, UploadId: %s failed",
-							file.Key, file.UploadID)
-						failNum++
-					} else if err != nil {
+					if err != nil {
 						log.Warnf(err.Error())
 						log.Infof("Abort key: %s, UploadId: %s failed",
 							file.Key, file.UploadID)

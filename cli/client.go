@@ -130,13 +130,14 @@ func LoadConf(configPath string) *ClientConfig {
 		// Config file not specified and no argument parameter specified => quit now.
 		if !section.HasKey("bucket") && Bucket == "" {
 			log.Fatal("The configuration file is wrong. Check whether bucket has been specified")
-		} else if Bucket != "" {
-			// If argument parameter specified, ignore config file.
-			config.Bucket = Bucket
 		} else {
 			// Read config file.
 			// The bucket identifier of COS is <bucketName>-<AppId>.
 			bucket := section.Key("bucket").String()
+			if Bucket != "" {
+				// If argument parameter specified, ignore config file.
+				bucket = Bucket
+			}
 			if section.HasKey("appid") {
 				appid := section.Key("appid").String()
 				if strings.HasSuffix(bucket, "-"+appid) {

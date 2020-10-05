@@ -18,7 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tencentyun/cos-go-sdk-v5"
@@ -32,19 +31,14 @@ func (client *Client) ListMultipartObjects(cosPath string) bool {
 	partNum := 0
 	for isTruncated {
 		isTruncated = false
-		result, resp, err := client.Client.Bucket.ListMultipartUploads(context.Background(), &cos.ListMultipartUploadsOptions{
+		result, _, err := client.Client.Bucket.ListMultipartUploads(context.Background(), &cos.ListMultipartUploadsOptions{
 			Delimiter:      "",
 			Prefix:         cosPath,
 			MaxUploads:     10,
 			KeyMarker:      keyMarker,
 			UploadIDMarker: uploadIDMarker,
 		})
-		if resp != nil && resp.StatusCode != 200 {
-			respContent, _ := ioutil.ReadAll(resp.Body)
-			log.Warnf("List Multipart Uploads Response Code: %d, Response Content: %s",
-				resp.StatusCode, respContent)
-			return false
-		} else if err != nil {
+		if err != nil {
 			log.Warnf(err.Error())
 			return false
 		}
@@ -53,7 +47,7 @@ func (client *Client) ListMultipartObjects(cosPath string) bool {
 		isTruncated = result.IsTruncated
 		for _, upload := range result.Uploads {
 			partNum++
-			log.Infof("Key:%s, UploadId:%s", upload.Key)
+			log.Infof("Key:%s, UploadId:%s", upload.Key, upload.UploadID)
 		}
 	}
 	log.Infof(" Parts num: %d", partNum)
