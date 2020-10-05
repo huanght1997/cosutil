@@ -56,7 +56,7 @@ type PathPair struct {
 }
 
 const (
-	VERSION = "1.8.6.20"
+	VERSION = "1.8.6.21"
 )
 
 var (

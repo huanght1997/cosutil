@@ -120,7 +120,13 @@ func upload(_ *cobra.Command, args []string) error {
 		} else if coshelper.IsDir(uploadLocalPath) {
 			ret = client.UploadFolder(uploadLocalPath, uploadCosPath, headers, uploadOption)
 		}
-		if ret != 0 && ret != -2 {
+		switch ret {
+		case 0:
+			return nil
+		case -2:
+			log.Info("This file has existed in COS. Skipped.")
+			return nil
+		default:
 			return coshelper.Error{
 				Code:    ret,
 				Message: fmt.Sprintf("upload failed, code: %d", ret),
@@ -141,14 +147,19 @@ func upload(_ *cobra.Command, args []string) error {
 			}
 		}
 		ret := client.UploadFile(uploadLocalPath, uploadCosPath, headers, uploadOption)
-		if ret != 0 {
+		switch ret {
+		case 0:
+			return nil
+		case -2:
+			log.Info("This file has existed in COS. Skipped.")
+			return nil
+		default:
 			return coshelper.Error{
 				Code:    ret,
-				Message: "upload failed",
+				Message: fmt.Sprintf("upload failed, code: %d", ret),
 			}
 		}
 	}
-	return nil
 }
 
 // if sourcePath is a file, targetPath is a directory, append file name to targetPath.
