@@ -49,11 +49,11 @@ func abort(_ *cobra.Command, args []string) error {
 	conf := cli.LoadConf(cli.ConfigPath)
 	client := cli.NewClient(conf)
 	abortCosPath = strings.TrimLeft(abortCosPath, "/")
-	if client.AbortParts(abortCosPath) != 0 {
-		return coshelper.Error{
-			Code:    -1,
-			Message: "Failed to abort parts",
-		}
+	if client.AbortParts(abortCosPath) {
+		return nil
 	}
-	return nil
+	return coshelper.Error{
+		Code:    -1,
+		Message: "Failed to abort parts",
+	}
 }

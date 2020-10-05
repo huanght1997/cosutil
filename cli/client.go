@@ -154,13 +154,13 @@ func LoadConf(configPath string) *ClientConfig {
 		}
 
 		// Handle endpoint.
-		if section.HasKey("region") {
+		if Region != "" {
+			config.Endpoint = "cos." + compatible(Region) + ".myqcloud.com"
+		} else if section.HasKey("region") {
 			// If region specified, the endpoint is cos.<region>.myqcloud.com,
 			// and the endpoint field in config file is ignored.
 			region := compatible(section.Key("region").String())
 			config.Endpoint = "cos." + region + ".myqcloud.com"
-		} else if Region != "" {
-			config.Endpoint = "cos." + compatible(Region) + ".myqcloud.com"
 		} else if section.HasKey("endpoint") {
 			config.Endpoint = section.Key("endpoint").String()
 		}

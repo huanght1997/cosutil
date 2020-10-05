@@ -22,6 +22,7 @@ import (
 	"github.com/huanght1997/cosutil/cli"
 	"github.com/huanght1997/cosutil/coshelper"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -97,9 +98,13 @@ func copyCos(_ *cobra.Command, args []string) error {
 			cosPath = cosPath[1:]
 		}
 		ret := client.CopyFolder(args[0], cosPath, headers, options)
-		if ret == 0 {
+		switch ret {
+		case 0:
 			return nil
-		} else {
+		case -3:
+			log.Info("operation canceled by user")
+			return nil
+		default:
 			return coshelper.Error{
 				Code:    ret,
 				Message: "copy folder failed",

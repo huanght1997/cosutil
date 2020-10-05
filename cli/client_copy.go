@@ -18,8 +18,11 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -77,17 +80,13 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 	for isTruncated {
 		var i int
 		for i = 0; i <= client.Config.RetryTimes; i++ {
-			result, resp, err := sourceClient.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+			result, _, err := sourceClient.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 				Prefix:    sourcePath,
 				Delimiter: "",
 				Marker:    nextMarker,
 				MaxKeys:   1000,
 			})
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warn("Bucket GET Response Code: %d, Response Content: %s",
-					resp.StatusCode, respContent)
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				isTruncated = result.IsTruncated
@@ -111,7 +110,10 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 				}
 				break
 			}
-			time.Sleep((1 << i) * time.Second)
+			// if it is the last time, do not sleep again.
+			if i < client.Config.RetryTimes {
+				time.Sleep((1 << i) * time.Second)
+			}
 		}
 		if i > client.Config.RetryTimes {
 			log.Warn("ListObjects fail")
@@ -159,7 +161,7 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 
 // sourcePath: bucket-appid.cos.ap-guangzhou.myqcloud.com/path/to/file
 // cosPath: test/file
-func (client *Client) CopyFile(sourcePath string, cosPath string, _ *http.Header, options *CopyOption) int {
+func (client *Client) CopyFile(sourcePath string, cosPath string, headers *http.Header, options *CopyOption) int {
 	sourceClient, err := client.sourcePathToClient(sourcePath)
 	if err != nil {
 		return -1
@@ -172,15 +174,114 @@ func (client *Client) CopyFile(sourcePath string, cosPath string, _ *http.Header
 			sourceClient.Config.Bucket, sourcePath[strings.Index(sourcePath, "/")+1:],
 			client.Config.Bucket, cosPath)
 	}
-	_, resp, err := client.Client.Object.Copy(context.Background(), cosPath, sourcePath, nil)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Object PUT Copy Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return -1
-	} else if err != nil {
+	// Check whether a single Copy interface could be use.
+	justCopy := false
+	// if less than 5GB, just use it.
+	// if the source and the target COS bucket are in the same region, just use it.
+	resp, err := sourceClient.Client.Object.Head(context.Background(), sourcePath[strings.Index(sourcePath, "/")+1:], nil)
+	if err != nil {
 		log.Warn(err.Error())
 		return -1
+	}
+	fileSize, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
+	if fileSize < singleUploadMaxSize {
+		justCopy = true
+	}
+	if sourceClient.Config.Endpoint == client.Config.Endpoint &&
+		resp.Header.Get("x-cos-storage-class") == "" {
+		// we now only support copy to another bucket with STANDARD storage class.
+		justCopy = true
+	}
+	if justCopy {
+		_, _, err = client.Client.Object.Copy(context.Background(), cosPath, sourcePath, nil)
+		if err != nil {
+			log.Warn(err.Error())
+			return -1
+		}
+	} else {
+		// Create Multipart upload first.
+		result, _, err := client.Client.Object.InitiateMultipartUpload(context.Background(), cosPath, &cos.InitiateMultipartUploadOptions{
+			ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+				XOptionHeader: headers,
+			},
+		})
+		if err != nil {
+			log.Warn(err.Error())
+			return -1
+		}
+		uploadID = result.UploadID
+		// Do multipart upload (copy).
+		chunkSize := 1024 * 1024 * int64(client.Config.PartSize)
+		if chunkSize >= singleUploadMaxSize {
+			chunkSize = singleUploadMaxSize
+		}
+		partsNum := int(fileSize / chunkSize)
+		lastSize := fileSize - int64(partsNum)*chunkSize
+		if lastSize != 0 {
+			partsNum++
+		}
+		copying := make(chan struct{}, client.Config.MaxThread)
+		copyResult := make(chan string, client.Config.MaxThread)
+		for i := 0; i < partsNum; i++ {
+			startOffset := int64(i) * chunkSize
+			endOffset := startOffset + chunkSize - 1
+			if i == partsNum-1 {
+				endOffset = fileSize - 1
+			}
+			go func(idx int, start, end int64) {
+				copying <- struct{}{}
+				for j := 0; j <= client.Config.RetryTimes; j++ {
+					result, _, err := client.Client.Object.CopyPart(context.Background(), cosPath, uploadID, idx, sourcePath, &cos.ObjectCopyPartOptions{
+						XCosCopySourceRange: fmt.Sprintf("bytes=%d-%d", start, end),
+					})
+					if err != nil {
+						log.Warnf("An error occurred when copying the %d part (total %d), retry time: %d, error message: '%s'",
+							idx, partsNum, j, err.Error())
+						// retry
+						if j == client.Config.RetryTimes {
+							copyResult <- fmt.Sprintf("%d#%s", idx, "error")
+							break
+						}
+						time.Sleep((1 << j) * time.Second)
+					} else {
+						copyResult <- fmt.Sprintf("%d#%s", idx, result.ETag)
+						break
+					}
+				}
+			}(i+1, startOffset, endOffset)
+			<-copying
+		}
+		// Complete multipart upload.
+		parts := make([]cos.Object, 0)
+		failed := false
+		for i := 0; i < partsNum; i++ {
+			v := <-copyResult
+			etag := strings.Split(v, "#")[1]
+			if etag == "error" {
+				failed = true
+			}
+			partNumber, _ := strconv.Atoi(strings.Split(v, "#")[0])
+			parts = append(parts, cos.Object{
+				ETag:       etag,
+				PartNumber: partNumber,
+			})
+		}
+		if failed {
+			log.Warn("Failed to copy some parts.")
+			client.AbortParts(cosPath)
+			return -1
+		}
+		sort.Slice(parts, func(i, j int) bool {
+			return parts[i].PartNumber < parts[j].PartNumber
+		})
+		completeOption := &cos.CompleteMultipartUploadOptions{
+			Parts: parts,
+		}
+		_, resp, err = client.Client.Object.CompleteMultipartUpload(context.Background(), cosPath, uploadID, completeOption)
+		if err != nil {
+			log.Warn(err.Error())
+			return -1
+		}
 	}
 	if options.Move {
 		sourceClient.DeleteFile(sourcePath[strings.Index(sourcePath, "/")+1:], &DeleteOption{

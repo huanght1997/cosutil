@@ -120,7 +120,7 @@ func upload(_ *cobra.Command, args []string) error {
 		} else if coshelper.IsDir(uploadLocalPath) {
 			ret = client.UploadFolder(uploadLocalPath, uploadCosPath, headers, uploadOption)
 		}
-		if ret != 0 {
+		if ret != 0 && ret != -2 {
 			return coshelper.Error{
 				Code:    ret,
 				Message: fmt.Sprintf("upload failed, code: %d", ret),

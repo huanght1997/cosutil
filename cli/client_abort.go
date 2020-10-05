@@ -27,7 +27,7 @@ type AbortFile struct {
 	UploadID string
 }
 
-func (client *Client) AbortParts(cosPath string) int {
+func (client *Client) AbortParts(cosPath string) bool {
 	nextKeyMarker := ""
 	nextUploadIDMarker := ""
 	isTruncated := true
@@ -75,7 +75,7 @@ func (client *Client) AbortParts(cosPath string) int {
 	log.Infof("%d files successful, %d files failed",
 		successNum, failNum)
 	if failNum != 0 {
-		return -1
+		return false
 	}
-	return 0
+	return true
 }
