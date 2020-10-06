@@ -70,6 +70,11 @@ func init() {
 
 // Save config
 func config(cmd *cobra.Command, _ []string) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 	cmd.Flags().Visit(func(flag *pflag.Flag) {
 		log.Debugf("%s: %v", flag.Name, flag.Value)
 	})

@@ -19,7 +19,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -31,13 +30,8 @@ import (
 // if all things goes smoothly while requesting the information, return true.
 // Otherwise, return false.
 func (client *Client) GetBucketACL() bool {
-	result, resp, err := client.Client.Bucket.GetACL(context.Background())
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Get Bucket ACL Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	result, _, err := client.Client.Bucket.GetACL(context.Background())
+	if err != nil {
 		log.Warn(err.Error())
 		return false
 	} else {
@@ -47,13 +41,8 @@ func (client *Client) GetBucketACL() bool {
 }
 
 func (client *Client) GetObjectACL(cosPath string) bool {
-	result, resp, err := client.Client.Object.GetACL(context.Background(), cosPath)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Get Object ACL Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	result, _, err := client.Client.Object.GetACL(context.Background(), cosPath)
+	if err != nil {
 		log.Warn(err.Error())
 		return false
 	} else {

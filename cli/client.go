@@ -105,7 +105,7 @@ func LoadConf(configPath string) *ClientConfig {
 	if err != nil {
 		log.Warnf("%s couldn't be found, please use 'cosutil config -h' to learn how to config cosutil!",
 			fullConfigPath)
-		panic(err)
+		log.Fatal(err.Error())
 	} else {
 		log.Debugf("%s is found", fullConfigPath)
 	}

@@ -18,7 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tencentyun/cos-go-sdk-v5"
@@ -31,15 +30,10 @@ func (client *Client) PutBucketVersioning(versioning bool) bool {
 	} else {
 		status = "Suspended"
 	}
-	resp, err := client.Client.Bucket.PutVersioning(context.Background(), &cos.BucketPutVersionOptions{
+	_, err := client.Client.Bucket.PutVersioning(context.Background(), &cos.BucketPutVersionOptions{
 		Status: status,
 	})
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("PutBucketVersioning Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	if err != nil {
 		log.Warnf(err.Error())
 		return false
 	} else {

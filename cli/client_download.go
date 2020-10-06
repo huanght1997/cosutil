@@ -79,17 +79,12 @@ func (client *Client) DownloadFolder(cosPath string, localPath string, options *
 		downloading := make(chan int, client.Config.MaxThread)
 		downloadResult := make(chan int, client.Config.MaxThread)
 		multiDownloadFileList := make([]multiDownloadFile, 0)
-		result, resp, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+		result, _, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 			Prefix:  cosPath,
 			Marker:  nextMarker,
 			MaxKeys: 1000,
 		})
-		if resp != nil && resp.StatusCode != 200 {
-			respContent, _ := ioutil.ReadAll(resp.Body)
-			log.Warnf("Bucket Get Response Code: %d, Response Content: %s", resp.StatusCode, string(respContent))
-			log.Warn("List object failed")
-			return -1
-		} else if err != nil {
+		if err != nil {
 			log.Warn(err.Error())
 			log.Warn("List object failed")
 			return -1
@@ -209,11 +204,6 @@ func (client *Client) singleDownload(cosPath string, localPath string, options *
 		log.Warn(err.Error())
 		return -1
 	}
-	if resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Object GET Response Code: %d, Content: %s", resp.StatusCode, string(respContent))
-		return -1
-	}
 	dirPath := filepath.Dir(localPath)
 	// create directories for downloaded file
 	if !coshelper.IsDir(dirPath) {
@@ -311,8 +301,8 @@ func (client *Client) multipartDownload(cosPath string, localPath string, fileSi
 			Saucer:        "=",
 			SaucerHead:    ">",
 			SaucerPadding: ".",
-			BarStart:      "|",
-			BarEnd:        "|",
+			BarStart:      "[",
+			BarEnd:        "]",
 		}),
 	)
 	_ = downloadBar.RenderBlank()
@@ -365,18 +355,23 @@ func (client *Client) getPartsData(localPath string, cosPath string, offset int6
 		f, err := os.OpenFile(localPath, os.O_RDWR, 0644)
 		if err != nil {
 			log.Warn(err.Error())
-			time.Sleep((1 << j) * time.Second)
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
 			continue
 		}
 		_, err = f.Seek(offset, 0)
 		if err != nil {
 			log.Warn(err.Error())
-			time.Sleep((1 << j) * time.Second)
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
 			continue
 		}
 		// make a buffer to keep chunks
 		buf := make([]byte, 1024*1024)
-		var totalBytes int64 = 0
+		var totalBytes int64
+		hasError := false
 		for {
 			n, err := resp.Body.Read(buf)
 			if err != nil && err != io.EOF {
@@ -384,8 +379,8 @@ func (client *Client) getPartsData(localPath string, cosPath string, offset int6
 					log.Warn(ferr.Error())
 				}
 				log.Warn(err.Error())
-				time.Sleep((1 << j) * time.Second)
-				continue
+				hasError = true
+				break
 			}
 			if n == 0 {
 				break
@@ -393,16 +388,24 @@ func (client *Client) getPartsData(localPath string, cosPath string, offset int6
 
 			if _, err := f.Write(buf[:n]); err != nil {
 				log.Warn(err.Error())
-				time.Sleep((1 << j) * time.Second)
-				continue
+				hasError = true
+				break
 			}
 			totalBytes += int64(n)
 			go updateProgress(downloadBar, int64(n), downloadDone)
 		}
+		if hasError {
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
+			continue
+		}
 		if length != totalBytes {
 			log.Warnf("Download incomplete part of [%s]",
 				fmt.Sprintf("bytes=%d-%d", offset, offset+length-1))
-			time.Sleep((1 << j) * time.Second)
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
 			continue
 		}
 		return 0
@@ -490,10 +493,6 @@ func (client *Client) remoteToLocalSyncCheck(cosPath string, localPath string, o
 				resp, err := client.Client.Object.Head(context.Background(), cosPath, nil)
 				if err != nil {
 					log.Warn(err.Error())
-					return -1
-				}
-				if resp.StatusCode != 200 {
-					log.Warnf("Object HEAD Response Code: %d", resp.StatusCode)
 					return -1
 				}
 				md5 := resp.Header.Get("x-cos-meta-md5")

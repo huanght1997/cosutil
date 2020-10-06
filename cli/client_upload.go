@@ -434,7 +434,7 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 			}
 		}
 	}
-	result, resp, err := client.Client.Object.InitiateMultipartUpload(context.Background(), cosPath, &cos.InitiateMultipartUploadOptions{
+	result, _, err := client.Client.Object.InitiateMultipartUpload(context.Background(), cosPath, &cos.InitiateMultipartUploadOptions{
 		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
 			XOptionHeader: headers,
 		},
@@ -443,13 +443,12 @@ func (client *Client) initMultiUpload(localPath string, cosPath string, headers 
 		log.Warn(err.Error())
 		return -1
 	}
-	respContent, _ := ioutil.ReadAll(resp.Body)
-	log.Debugf("Init resp: %s", string(respContent))
 	uploadID = result.UploadID
 	tmpDir, err := homedir.Expand("~/.tmp")
 	if err != nil {
 		log.Warn(err.Error())
-		return -1
+		// It is acceptable if temp file cannot create.
+		return 0
 	}
 	if !coshelper.IsDir(tmpDir) {
 		err := os.MkdirAll(tmpDir, os.ModePerm)
@@ -506,8 +505,8 @@ func (client *Client) multiUploadParts(localPath string, cosPath string, options
 			Saucer:        "=",
 			SaucerHead:    ">",
 			SaucerPadding: ".",
-			BarStart:      "|",
-			BarEnd:        "|",
+			BarStart:      "[",
+			BarEnd:        "]",
 		}),
 	)
 	_ = uploadBar.RenderBlank()
@@ -586,14 +585,18 @@ func (client *Client) multiUploadPartsData(localPath string, cosPath string, off
 		if err != nil {
 			log.Warnf("Upload part failed, key: %s, partNumber: %d, round: %d, exception: %s",
 				cosPath, index, j+1, err.Error())
-			time.Sleep((1 << j) * time.Second)
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
 			continue
 		}
 		_, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Warnf("Upload part failed, key: %s, partNumber: %d, round: %d, exception: %s",
 				cosPath, index, j+1, err.Error())
-			time.Sleep((1 << j) * time.Second)
+			if j < client.Config.RetryTimes {
+				time.Sleep((1 << j) * time.Second)
+			}
 			continue
 		}
 		if resp.StatusCode == 200 {
@@ -608,7 +611,9 @@ func (client *Client) multiUploadPartsData(localPath string, cosPath string, off
 			} else {
 				log.Warnf("Upload part failed, key: %s, partNumber: %d, round: %d, exception: %s",
 					cosPath, index, j+1, "Encryption verification is inconsistent")
-				time.Sleep((1 << j) * time.Second)
+				if j < client.Config.RetryTimes {
+					time.Sleep((1 << j) * time.Second)
+				}
 				continue
 			}
 		}
@@ -633,13 +638,8 @@ func (client *Client) completeMultiUpload(cosPath string) int {
 	completeOption := &cos.CompleteMultipartUploadOptions{
 		Parts: parts,
 	}
-	_, resp, err := client.Client.Object.CompleteMultipartUpload(context.Background(), cosPath, uploadID, completeOption)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("CompleteMultipartUpload Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return -1
-	} else if err != nil {
+	_, _, err := client.Client.Object.CompleteMultipartUpload(context.Background(), cosPath, uploadID, completeOption)
+	if err != nil {
 		log.Warn(err.Error())
 		return -1
 	}
@@ -685,17 +685,20 @@ func (client *Client) listPart(cosPath string) bool {
 func getPathDigest(localPath string, cosPath string) string {
 	localAbsPath, err := filepath.Abs(localPath)
 	if err != nil {
-		panic(err)
+		log.Warnf("an error occurred: %s", err.Error())
+		return ""
 	}
 	fileSize, err := coshelper.GetFileSize(localPath)
 	if err != nil {
-		panic(err)
+		log.Warnf("an error occurred: %s", err.Error())
+		return ""
 	}
 	ori := fmt.Sprintf("%s!!!%d!!!%s", localAbsPath, fileSize, cosPath)
 	md5sum := fmt.Sprintf("%x", md5.Sum([]byte(ori)))
 	file, err := homedir.Expand("~/.tmp/" + md5sum)
 	if err != nil {
-		panic(err)
+		log.Warnf("an error occurred: %s", err.Error())
+		return ""
 	}
 	return file
 }

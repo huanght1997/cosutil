@@ -55,34 +55,25 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 		deleteList := make([]cos.Object, 0)
 		var result interface{}
 		for i := 0; i <= client.Config.RetryTimes; i++ {
-			var resp *cos.Response
 			var err error
 			if versionIDMarker == "null" {
 				versionIDMarker = ""
 			}
 			if versions {
-				result, resp, err = client.Client.Bucket.GetObjectVersions(context.Background(), &cos.BucketGetObjectVersionsOptions{
+				result, _, err = client.Client.Bucket.GetObjectVersions(context.Background(), &cos.BucketGetObjectVersionsOptions{
 					Prefix:          cosPath,
 					KeyMarker:       keyMarker,
 					VersionIdMarker: versionIDMarker,
 					MaxKeys:         1000,
 				})
 			} else {
-				result, resp, err = client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+				result, _, err = client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 					Prefix:  cosPath,
 					Marker:  nextMarker,
 					MaxKeys: 1000,
 				})
 			}
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				if versions {
-					log.Warnf("Bucket GET Versioning Response Code: %d, Response Content: %s",
-						resp.StatusCode, respContent)
-				} else {
-					log.Warnf("Bucket GET Response Code: %d, Response Content: %s", resp.StatusCode, respContent)
-				}
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				break
@@ -204,14 +195,9 @@ func (client *Client) DeleteObjects(deleteList []string) (successNum int, failNu
 		options := &cos.ObjectDeleteMultiOptions{
 			Objects: objects,
 		}
-		result, resp, err := client.Client.Object.DeleteMulti(context.Background(), options)
-		if err != nil || resp.StatusCode != 200 {
-			if err == nil {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warnf("Response Code: %d, Response Content: %s", resp.StatusCode, respContent)
-			} else {
-				log.Warn(err)
-			}
+		result, _, err := client.Client.Object.DeleteMulti(context.Background(), options)
+		if err != nil {
+			log.Warn(err)
 			return 0, len(deleteList)
 		}
 		for _, file := range result.DeletedObjects {

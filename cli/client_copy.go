@@ -19,7 +19,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sort"
 	"strconv"
@@ -302,16 +301,13 @@ func (client *Client) remoteToRemoteSyncDelete(sourceClient *Client, sourcePath 
 		var deleteList []string
 		for i := 0; i <= client.Config.RetryTimes; i++ {
 			// get objects in the bucket
-			result, resp, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+			result, _, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 				Prefix:    cosPath,
 				Delimiter: "",
 				Marker:    nextMarker,
 				MaxKeys:   1000,
 			})
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warnf("Bucket Get Response Code: %d, Response Content: %s", resp.StatusCode, respContent)
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				// if true, some objects are not shown, continue

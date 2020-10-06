@@ -45,16 +45,12 @@ func (client *Client) RestoreFolder(cosPath string, options *RestoreOption) int 
 	restoreResult := make(chan int, client.Config.MaxThread)
 	for isTruncated {
 		for i := 0; i <= client.Config.RetryTimes; i++ {
-			result, resp, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+			result, _, err := client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 				Prefix:  cosPath,
 				Marker:  nextMarker,
 				MaxKeys: 1000,
 			})
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warnf("Bucket Get Response Code: %d, Response Content: %s",
-					resp.StatusCode, string(respContent))
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				isTruncated = result.IsTruncated

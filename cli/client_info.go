@@ -27,11 +27,7 @@ import (
 
 func (client *Client) InfoObject(cosPath string, _ bool) bool {
 	resp, err := client.Client.Object.Head(context.Background(), cosPath, nil)
-	if resp != nil && resp.StatusCode != 200 {
-		log.Warnf("Head Object Response Code: %d, headers: %v",
-			resp.StatusCode, resp.Header)
-		return false
-	} else if err != nil {
+	if err != nil {
 		log.Warn(err.Error())
 		return false
 	}

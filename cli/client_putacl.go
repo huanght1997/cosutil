@@ -18,7 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -36,13 +35,8 @@ type grantOption struct {
 func (client *Client) PutObjectACL(grantRead, grantWrite, grantFullControl, cosPath string) bool {
 	acl := client.initACL(grantRead, grantWrite, grantFullControl)
 
-	result, resp, err := client.Client.Object.GetACL(context.Background(), cosPath)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("GetObjectACL Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	result, _, err := client.Client.Object.GetACL(context.Background(), cosPath)
+	if err != nil {
 		log.Warnf(err.Error())
 		return false
 	} else {
@@ -56,13 +50,8 @@ func (client *Client) PutObjectACL(grantRead, grantWrite, grantFullControl, cosP
 // Otherwise(like network connection failed, no such remote object), return false.
 func (client *Client) PutBucketACL(grantRead, grantWrite, grantFullControl, cosPath string) bool {
 	acl := client.initACL(grantRead, grantWrite, grantFullControl)
-	result, resp, err := client.Client.Bucket.GetACL(context.Background())
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("GetBucketACL Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	result, _, err := client.Client.Bucket.GetACL(context.Background())
+	if err != nil {
 		log.Warnf(err.Error())
 		return false
 	} else {
@@ -141,13 +130,7 @@ func (client *Client) putACL(acl []grantOption, ownerID string, cosPath string) 
 		},
 	}
 	resp, err := client.Client.Object.PutACL(context.Background(), cosPath, option)
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Debug(resp.Header)
-		log.Warnf("PutObjectACL Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	if err != nil {
 		log.Warnf(err.Error())
 		return false
 	} else {

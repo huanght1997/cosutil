@@ -18,7 +18,6 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 
 	"github.com/huanght1997/cosutil/coshelper"
@@ -65,11 +64,10 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 			if versionIDMarker == "null" {
 				versionIDMarker = ""
 			}
-			var resp *cos.Response
 			var err error
 			var res interface{}
 			if options.Versions {
-				res, resp, err = client.Client.Bucket.GetObjectVersions(context.Background(), &cos.BucketGetObjectVersionsOptions{
+				res, _, err = client.Client.Bucket.GetObjectVersions(context.Background(), &cos.BucketGetObjectVersionsOptions{
 					Prefix:          cosPath,
 					Delimiter:       delimiter,
 					KeyMarker:       keyMarker,
@@ -77,18 +75,14 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 					MaxKeys:         1000,
 				})
 			} else {
-				res, resp, err = client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
+				res, _, err = client.Client.Bucket.Get(context.Background(), &cos.BucketGetOptions{
 					Prefix:    cosPath,
 					Delimiter: delimiter,
 					Marker:    keyMarker,
 					MaxKeys:   1000,
 				})
 			}
-			if resp != nil && resp.StatusCode != 200 {
-				respContent, _ := ioutil.ReadAll(resp.Body)
-				log.Warn("List Object Version Response Code: %d, Response Content: %s",
-					resp.StatusCode, string(respContent))
-			} else if err != nil {
+			if err != nil {
 				log.Warn(err.Error())
 			} else {
 				if options.Versions {

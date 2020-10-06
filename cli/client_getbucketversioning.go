@@ -18,19 +18,13 @@ package cli
 
 import (
 	"context"
-	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func (client *Client) GetBucketVersioning() bool {
-	result, resp, err := client.Client.Bucket.GetVersioning(context.Background())
-	if resp != nil && resp.StatusCode != 200 {
-		respContent, _ := ioutil.ReadAll(resp.Body)
-		log.Warnf("Get Bucket Versioning Response Code: %d, Response Content: %s",
-			resp.StatusCode, string(respContent))
-		return false
-	} else if err != nil {
+	result, _, err := client.Client.Bucket.GetVersioning(context.Background())
+	if err != nil {
 		log.Warn(err.Error())
 		return false
 	} else {
