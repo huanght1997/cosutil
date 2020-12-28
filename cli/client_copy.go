@@ -169,7 +169,7 @@ func (client *Client) CopyFile(sourcePath string, cosPath string, headers *http.
 		return -2
 	}
 	if options.Move {
-		log.Info("Move cos://%s/%s   =>   cos://%s/%s",
+		log.Infof("Move cos://%s/%s   =>   cos://%s/%s",
 			sourceClient.Config.Bucket, sourcePath[strings.Index(sourcePath, "/")+1:],
 			client.Config.Bucket, cosPath)
 	}

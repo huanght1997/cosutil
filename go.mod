@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964
 	github.com/jedib0t/go-pretty/v6 v6.0.5
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/schollz/progressbar/v3 v3.6.0
 	github.com/sirupsen/logrus v1.7.0
