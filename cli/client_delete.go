@@ -30,12 +30,13 @@ import (
 
 type DeleteOption struct {
 	Force     bool
+	Yes       bool
 	Versions  bool
 	VersionID string
 }
 
 func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
-	if !options.Force {
+	if !options.Force && !options.Yes {
 		if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
 			return -3
 		}
@@ -44,7 +45,6 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 	if cosPath == "/" {
 		cosPath = ""
 	}
-	options.Force = true
 	haveDeletedNum := 0
 	totalDeleteFileNum := 0
 	nextMarker := ""
@@ -154,7 +154,7 @@ func (client *Client) DeleteFolder(cosPath string, options *DeleteOption) int {
 }
 
 func (client *Client) DeleteFile(cosPath string, options *DeleteOption) int {
-	if !options.Force {
+	if !options.Force && !options.Yes {
 		if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the %s COS path, please make sure", cosPath), "no") {
 			return -3
 		}

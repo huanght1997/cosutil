@@ -28,9 +28,9 @@ import (
 )
 
 type DownloadConfig struct {
-	force, recursive, sync, skipMd5, delLocal bool
-	headers, versionID, include, ignore       string
-	num                                       int
+	force, yes, recursive, sync, skipMd5, delLocal bool
+	headers, versionID, include, ignore            string
+	num                                            int
 }
 
 var (
@@ -38,7 +38,7 @@ var (
 	downloadConfig                     DownloadConfig
 	downloadCmd                        = &cobra.Command{
 		DisableFlagsInUseLine: true,
-		Use: "download [-h] [-f] [-r] [-s] [-H HEADERS] [--versionId VERSIONID] [--include INCLUDE] " +
+		Use: "download [-h] [-f] [-y] [-r] [-s] [-H HEADERS] [--versionId VERSIONID] [--include INCLUDE] " +
 			"[--ignore IGNORE] [--skipmd5] [--delete] [-n NUM] COS_PATH LOCAL_PATH",
 		Short: "Download file or directory from COS.",
 		Long: `Download file or directory from COS.
@@ -56,6 +56,8 @@ func init() {
 	downloadCmd.Flags().SortFlags = false
 	downloadCmd.Flags().BoolVarP(&downloadConfig.force, "force", "f", false,
 		"Overwrite the saved files")
+	downloadCmd.Flags().BoolVarP(&downloadConfig.yes, "yes", "y", false,
+		"Skip confirmation")
 	downloadCmd.Flags().BoolVarP(&downloadConfig.recursive, "recursive", "r", false,
 		"Download recursively when upload directory")
 	downloadCmd.Flags().BoolVarP(&downloadConfig.sync, "sync", "s", false,
@@ -87,6 +89,7 @@ func download(_ *cobra.Command, args []string) error {
 	}
 	options := &cli.DownloadOption{
 		Force:   downloadConfig.force,
+		Yes:     downloadConfig.yes,
 		Sync:    downloadConfig.sync,
 		Num:     downloadConfig.num,
 		Ignore:  strings.Split(downloadConfig.ignore, ","),

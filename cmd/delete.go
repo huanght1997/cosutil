@@ -29,15 +29,15 @@ import (
 )
 
 type DeleteConfig struct {
-	recursive, versions, force bool
-	versionID                  string
+	recursive, versions, force, yes bool
+	versionID                       string
 }
 
 var (
 	deleteConfig DeleteConfig
 	deleteCmd    = &cobra.Command{
 		DisableFlagsInUseLine: true,
-		Use:                   "delete [-h] [-r] [--versions] [--versionId VERSIONID] [-f] COS_PATH",
+		Use:                   "delete [-h] [-r] [--versions] [--versionId VERSIONID] [-f] [-y] COS_PATH",
 		Short:                 "Delete file or files on COS",
 		Long: `Delete file or files on COS
 
@@ -59,6 +59,8 @@ func init() {
 		"Specify versionId of object to list")
 	deleteCmd.Flags().BoolVarP(&deleteConfig.force, "force", "f", false,
 		"Delete directly without confirmation")
+	deleteCmd.Flags().BoolVarP(&deleteConfig.yes, "yes", "y", false,
+		"Skip confirmation")
 }
 
 func deleteCos(_ *cobra.Command, args []string) error {
@@ -70,6 +72,7 @@ func deleteCos(_ *cobra.Command, args []string) error {
 	}
 	options := &cli.DeleteOption{
 		Force:     deleteConfig.force,
+		Yes:       deleteConfig.yes,
 		Versions:  deleteConfig.versions,
 		VersionID: deleteConfig.versionID,
 	}

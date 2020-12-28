@@ -19,7 +19,6 @@ package cli
 import (
 	"context"
 	"io/ioutil"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -110,7 +109,7 @@ func (client *Client) RestoreFile(cosPath string, options *RestoreOption) int {
 			return 0
 		} else {
 			respContent, _ := ioutil.ReadAll(resp.Body)
-			if resp.StatusCode == 409 && strings.Contains(string(respContent), "RestoreAlreadyInProgress") {
+			if resp.StatusCode == 409 {
 				log.Warnf("cos://%s/%s already in progress",
 					client.Config.Bucket, cosPath)
 				return -2

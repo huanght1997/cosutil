@@ -35,6 +35,7 @@ import (
 type CopyOption struct {
 	Sync      bool
 	Force     bool
+	Yes	bool
 	Directive string
 	SkipMd5   bool
 	Ignore    []string
@@ -138,7 +139,7 @@ func (client *Client) CopyFolder(sourcePath string, cosPath string, headers *htt
 			successNum, skipNum, failNum)
 	}
 	if options.Sync && options.Delete {
-		if !options.Force {
+		if !options.Force && !options.Yes {
 			if !coshelper.Confirm("WARN: you are deleting some files in the '%s' COS path, please make sure", "no") {
 				return -3
 			}

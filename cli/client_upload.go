@@ -46,6 +46,7 @@ type UploadOption struct {
 	Include []string
 	Ignore  []string
 	Force   bool
+	Yes		bool
 	Delete  bool
 }
 
@@ -159,7 +160,7 @@ func (client *Client) UploadFolder(localPath string, cosPath string, headers *ht
 
 	// if --sync and --delete flag set, delete files which not exist on COS.
 	if options.Sync && options.Delete {
-		if !options.Force {
+		if !options.Force && !options.Yes {
 			question := fmt.Sprintf("WARN: you are deleting some files in the '%s' COS path, please make sure",
 				rawCosPath)
 			if !coshelper.Confirm(question, "no") {

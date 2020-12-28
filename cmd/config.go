@@ -99,10 +99,10 @@ func config(cmd *cobra.Command, _ []string) error {
 			Code:    1,
 			Message: err.Error(),
 		}
-	} else if configRegion != "" {
-		newKey(commonSection, "region", configRegion)
-	} else {
+	} else if configEndpoint != "" {
 		newKey(commonSection, "endpoint", configEndpoint)
+	} else {
+		newKey(commonSection, "region", configRegion)
 	}
 	newKey(commonSection, "max_thread", strconv.Itoa(configMaxThread))
 	newKey(commonSection, "part_size", strconv.Itoa(configPartSize))

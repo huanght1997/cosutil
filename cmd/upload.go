@@ -30,8 +30,8 @@ import (
 )
 
 type UploadConfig struct {
-	recursive, sync, force, skipMd5, delRemote bool
-	headers, include, ignore                   string
+	recursive, sync, force, yes, skipMd5, delRemote bool
+	headers, include, ignore                        string
 }
 
 // uploadCmd represents the upload command
@@ -63,6 +63,8 @@ func init() {
 		"Upload and skip the same file")
 	uploadCmd.Flags().BoolVarP(&uploadConfig.force, "force", "f", false,
 		"Upload without history breakpoint")
+	uploadCmd.Flags().BoolVarP(&uploadConfig.yes, "yes", "y", false,
+		"Skip confirmation")
 	uploadCmd.Flags().StringVar(&uploadConfig.include, "include", "*",
 		"Specify filter rules, separated by commas; Example: *.txt,*.docx,*.ppt")
 	uploadCmd.Flags().StringVar(&uploadConfig.ignore, "ignore", "",
@@ -110,6 +112,7 @@ func upload(_ *cobra.Command, args []string) error {
 		Include: strings.Split(uploadConfig.include, ","),
 		Ignore:  strings.Split(uploadConfig.ignore, ","),
 		Force:   uploadConfig.force,
+		Yes:     uploadConfig.yes,
 		Delete:  uploadConfig.delRemote,
 	}
 	headers := coshelper.ConvertStringToHeader(uploadConfig.headers)

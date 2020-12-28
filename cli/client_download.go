@@ -40,6 +40,7 @@ import (
 
 type DownloadOption struct {
 	Force   bool
+	Yes	bool
 	Sync    bool
 	Num     int
 	Ignore  []string
@@ -146,7 +147,7 @@ func (client *Client) DownloadFolder(cosPath string, localPath string, options *
 		successNum, skipNum, failNum)
 	// --sync --delete to delete files not in COS but in local
 	if options.Sync && options.Delete {
-		if !options.Force {
+		if !options.Force && !options.Yes {
 			if !coshelper.Confirm(fmt.Sprintf("WARN: you are deleting the file in the '%s' local path, please make sure", localPath), "no") {
 				return -3
 			}

@@ -27,15 +27,15 @@ import (
 )
 
 type CopyConfig struct {
-	sync, recursive, force, skipMd5, deleteTarget bool
-	headers, include, ignore, directive           string
+	sync, recursive, force, yes, skipMd5, deleteTarget bool
+	headers, include, ignore, directive                string
 }
 
 var (
 	copyConfig CopyConfig
 	copyCmd    = &cobra.Command{
 		DisableFlagsInUseLine: true,
-		Use:                   "copy [-h] [-H HEADERS] [-d {Copy,Replaced}] [-s] [-r] [-f] [--include INCLUDE] [--ignore IGNORE] [--skipmd5] [--delete] SOURCE_PATH COS_PATH",
+		Use:                   "copy [-h] [-H HEADERS] [-d {Copy,Replaced}] [-s] [-r] [-f] [-y] [--include INCLUDE] [--ignore IGNORE] [--skipmd5] [--delete] SOURCE_PATH COS_PATH",
 		Short:                 "Copy file from COS to COS",
 		Long: `Copy file from COS to COS
 
@@ -55,6 +55,8 @@ func init() {
 	copyCmd.Flags().BoolVarP(&copyConfig.sync, "sync", "s", false, "Copy and skip the same file")
 	copyCmd.Flags().BoolVarP(&copyConfig.recursive, "recursive", "r", false, "Copy files recursively")
 	copyCmd.Flags().BoolVarP(&copyConfig.force, "force", "f", false, "Overwrite file without skip")
+	copyCmd.Flags().BoolVarP(&copyConfig.yes, "yes", "y", false,
+		"Skip confirmation")
 	copyCmd.Flags().StringVar(&copyConfig.include, "include", "*",
 		"Specify filter rules, separated by commas; Example: *.txt,*.docx,*.ppt")
 	copyCmd.Flags().StringVar(&copyConfig.ignore, "ignore", "",
@@ -81,6 +83,7 @@ func copyCos(_ *cobra.Command, args []string) error {
 	options := &cli.CopyOption{
 		Sync:      copyConfig.sync,
 		Force:     copyConfig.force,
+		Yes:       copyConfig.yes,
 		Directive: copyConfig.directive,
 		SkipMd5:   copyConfig.skipMd5,
 		Ignore:    strings.Split(copyConfig.ignore, ","),
