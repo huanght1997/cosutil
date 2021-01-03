@@ -7,14 +7,14 @@
 
 ## 介绍
 
-非官方腾讯云COS命令行工具，用Go语言编写，基于 [腾讯云COS Go SDK](https://github.com/tencentyun/cos-go-sdk-v5) 构建。
+非官方腾讯云 COS 命令行工具，用Go语言编写，基于 [腾讯云COS Go SDK](https://github.com/tencentyun/cos-go-sdk-v5) 构建。
 
 ## 编译指南
 
-1.  升级Go语言版本至1.11以上
+1.  升级 Go 语言版本至 1.11 以上
 2.  `go build`
 3.  Enjoy :)
 
 ## 使用方法
 
-工具完全兼容腾讯云官方COS命令行工具coscmd，只要把名称coscmd改为cosutil即可。参见<https://cloud.tencent.com/document/product/436/10976>
+工具完全兼容腾讯云官方 COS 命令行工具 coscmd，只要把名称 coscmd 改为 cosutil 即可。参见 [COSCMD 工具官方文档](https://cloud.tencent.com/document/product/436/10976) 。
