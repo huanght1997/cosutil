@@ -150,7 +150,7 @@ func ConvertTime(rawTimeString string) string {
 	return theTime.Format("2006-01-02 15:04:05")
 }
 
-func Humanize(size int, human bool) string {
+func Humanize(size int64, human bool) string {
 	if !human {
 		return fmt.Sprintf("%d", size)
 	}

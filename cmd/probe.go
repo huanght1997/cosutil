@@ -127,12 +127,12 @@ func probe(*cobra.Command, []string) error {
 			"Average", "Min", "Max",
 		})
 		t.Style().Options.DrawBorder = false
-		avgUploadBw := coshelper.Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeUpload)*1e-9)), true) + "B/s"
-		avgDownloadBw := coshelper.Humanize(int(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeDownload)*1e-9)), true) + "B/s"
-		minUploadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeUpload)*1e-9)), true) + "B/s"
-		minDownloadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(maxTimeDownload)*1e-9)), true) + "B/s"
-		maxUploadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeUpload)*1e-9)), true) + "B/s"
-		maxDownloadBw := coshelper.Humanize(int(float32(probeSize)*1024*1024/(float32(minTimeDownload)*1e-9)), true) + "B/s"
+		avgUploadBw := coshelper.Humanize(int64(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeUpload)*1e-9)), true) + "B/s"
+		avgDownloadBw := coshelper.Humanize(int64(float32(probeSize)*float32(successNum)*1024*1024/(float32(timeDownload)*1e-9)), true) + "B/s"
+		minUploadBw := coshelper.Humanize(int64(float32(probeSize)*1024*1024/(float32(maxTimeUpload)*1e-9)), true) + "B/s"
+		minDownloadBw := coshelper.Humanize(int64(float32(probeSize)*1024*1024/(float32(maxTimeDownload)*1e-9)), true) + "B/s"
+		maxUploadBw := coshelper.Humanize(int64(float32(probeSize)*1024*1024/(float32(minTimeUpload)*1e-9)), true) + "B/s"
+		maxDownloadBw := coshelper.Humanize(int64(float32(probeSize)*1024*1024/(float32(minTimeDownload)*1e-9)), true) + "B/s"
 		t.AppendRow(table.Row{
 			"Upload",
 			avgUploadBw, minUploadBw, maxUploadBw,

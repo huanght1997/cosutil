@@ -39,7 +39,7 @@ type ListOption struct {
 type FileDesc struct {
 	Path      string
 	Type      string
-	Size      int
+	Size      int64
 	Time      string
 	Class     string
 	VersionID string
@@ -55,7 +55,7 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 		options.Num = -1
 	}
 	fileNum := 0
-	totalSize := 0
+	var totalSize int64 = 0
 	keyMarker := ""
 	versionIDMarker := ""
 	for isTruncated {
@@ -113,11 +113,11 @@ func (client *Client) ListObjects(cosPath string, options *ListOption) bool {
 					if fileNum < options.Num || options.Num == -1 {
 						for _, file := range result.Version {
 							fileNum++
-							totalSize += file.Size
+							totalSize += int64(file.Size)
 							filesInfo = append(filesInfo, FileDesc{
 								Path:      file.Key,
 								Type:      "File",
-								Size:      file.Size,
+								Size:      int64(file.Size),
 								Time:      coshelper.ConvertTime(file.LastModified),
 								VersionID: file.VersionId,
 							})
