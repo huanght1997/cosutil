@@ -13,7 +13,7 @@ mkdir -p ./release
 
 make
 
-os_all='linux windows darwin freebsd'
+os_all='linux windows freebsd'
 arch_all='386 amd64 arm arm64'
 
 cd ./release || exit 1
